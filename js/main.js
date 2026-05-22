@@ -529,9 +529,8 @@ function renderProducts() {
   }
 
   track.innerHTML = visibleProducts.map(product => renderProductCard(product)).join("");
-  dots.innerHTML = visibleProducts.map((product, index) => `
-    <button class="dot${index === currentSlide ? " is-active" : ""}" type="button" aria-label="Ver ${product.nombre}" data-slide="${index}"></button>
-  `).join("");
+  currentSlide = clampCarouselIndex(track, currentSlide);
+  renderCarouselDots(dots, track);
 
   bindProductActions(track);
   bindDots(dots, track);
@@ -673,12 +672,14 @@ function initCarouselControls() {
 
 function moveCarousel(direction) {
   const track = document.getElementById("products-track");
-  const visibleProducts = activeCategory === "todos"
-    ? products
-    : products.filter(product => product.categoriaId === activeCategory);
-  if (!track || !visibleProducts.length) return;
+  if (!track || !track.children.length) return;
 
-  currentSlide = (currentSlide + direction + visibleProducts.length) % visibleProducts.length;
+  const { maxStart } = getCarouselMetrics(track);
+  if (direction > 0) {
+    currentSlide = currentSlide >= maxStart ? 0 : currentSlide + 1;
+  } else {
+    currentSlide = currentSlide <= 0 ? maxStart : currentSlide - 1;
+  }
   scrollToSlide(track, currentSlide);
   updateDots();
 }
@@ -694,8 +695,10 @@ function bindDots(dots, track) {
 }
 
 function scrollToSlide(track, index) {
-  const card = track.children[index];
+  const safeIndex = clampCarouselIndex(track, index);
+  const card = track.children[safeIndex];
   if (!card) return;
+  currentSlide = safeIndex;
   track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: "smooth" });
 }
 
@@ -703,6 +706,35 @@ function updateDots() {
   document.querySelectorAll(".dot").forEach((dot, index) => {
     dot.classList.toggle("is-active", index === currentSlide);
   });
+}
+
+function renderCarouselDots(dots, track) {
+  const { maxStart } = getCarouselMetrics(track);
+  dots.innerHTML = Array.from({ length: maxStart + 1 }, (_, index) => `
+    <button class="dot${index === currentSlide ? " is-active" : ""}" type="button" aria-label="Ver grupo ${index + 1}" data-slide="${index}"></button>
+  `).join("");
+}
+
+function clampCarouselIndex(track, index) {
+  const { maxStart } = getCarouselMetrics(track);
+  return Math.min(Math.max(Number(index) || 0, 0), maxStart);
+}
+
+function getCarouselMetrics(track) {
+  const totalCards = track.children.length;
+  const firstCard = track.children[0];
+  if (!totalCards || !firstCard) {
+    return { visibleCards: 1, maxStart: 0 };
+  }
+
+  const trackWidth = track.clientWidth || firstCard.getBoundingClientRect().width;
+  const cardWidth = firstCard.getBoundingClientRect().width || trackWidth;
+  const visibleCards = Math.max(1, Math.round(trackWidth / cardWidth));
+
+  return {
+    visibleCards,
+    maxStart: Math.max(0, totalCards - visibleCards),
+  };
 }
 
 function buildPaymentUrl(product, quantity) {

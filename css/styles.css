@@ -1409,6 +1409,16 @@ body.dark .qty-btn:hover {
   gap: .9rem;
 }
 
+.contact-form .btn[type="submit"] {
+  width: auto;
+  min-width: 180px;
+  min-height: 46px;
+  justify-self: center;
+  align-self: center;
+  padding: .78rem 1.35rem;
+  border-radius: 999px;
+}
+
 .contact-form label {
   display: grid;
   gap: .45rem;
@@ -1682,6 +1692,11 @@ body.dark .footer a:hover {
   .hero-actions,
   .contact-actions {
     display: grid;
+  }
+
+  .contact-form .btn[type="submit"] {
+    width: min(100%, 260px);
+    justify-self: center;
   }
 
   .contact-copy h2 {
