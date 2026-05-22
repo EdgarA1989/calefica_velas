@@ -1,0 +1,4 @@
+id,activo,orden,categoria,nombre,descripcion,aroma,precio,nombreImagen,linkMercadoPago,linkQR,whatsapp,stock,destacado
+vela-lavanda,SI,1,Aromáticas,Vela Lavanda Soft,Vela de soja artesanal con aroma delicado a lavanda.,Lavanda,8500,vela-lavanda.jpg,https://link-mercadopago.com,https://link-qr.com,549XXXXXXXXXX,SI,SI
+vela-vainilla,SI,2,Aromáticas,Vela Vainilla Cálida,Vela artesanal de soja con aroma dulce y envolvente.,Vainilla,8900,vela-vainilla.jpg,,,549XXXXXXXXXX,SI,NO
+combo-relax,SI,3,Combos / regalos,Combo Relax,Box con vela artesanal y detalle aromático para regalar calma.,Mix relajante,16800,combo-relax.jpg,https://link-mercadopago.com,,549XXXXXXXXXX,SI,SI
