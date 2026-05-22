@@ -866,7 +866,7 @@ body.dark .floating-note span {
   inset: .8rem;
   overflow: hidden;
   border-radius: 22px;
-  background-image: url("https://images.unsplash.com/photo-1603204077779-bed963ea7d0e?auto=format&fit=crop&w=1000&q=82");
+  background-image: url("../assets/img/historia.png");
   background-position: center;
   background-size: cover;
 }
