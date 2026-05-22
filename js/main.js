@@ -9,6 +9,10 @@ const BRAND_CONFIG = {
 const PRODUCTS_API_URL = "https://script.google.com/macros/s/AKfycbxfWGJ1Is0XOMVcJRRflDdT2aGN4i_zBh5m5vkcdj2wppS1UePgivDzNc5xhzJfj_kK/exec";
 const DEFAULT_WHATSAPP_NUMBER = BRAND_CONFIG.whatsappNumber;
 const PLACEHOLDER_IMAGE = "";
+
+// CATALOG_STORAGE_KEY guarda el ultimo catalogo valido para mostrarlo al instante.
+const CATALOG_STORAGE_KEY = "calefica-products-cache-v1";
+
 const LEGACY_CATEGORY_LABELS = {
   clasicas: "Velas clasicas",
   aromaticas: "Velas aromaticas",
@@ -341,12 +345,21 @@ function initContactLinks() {
 
 function initCatalog() {
   products = products.map(normalizeProduct);
-  refreshCatalogData(products);
-  renderCatalogState("loading");
-  loadProductsFromApi();
+  const cachedProducts = readProductsCache();
+
+  if (cachedProducts?.length) {
+    refreshCatalogData(cachedProducts);
+    renderCategories();
+    renderProducts();
+  } else {
+    refreshCatalogData(products);
+    renderCatalogState("loading");
+  }
+
+  loadProductsFromApi({ hasCachedProducts: Boolean(cachedProducts?.length) });
 }
 
-async function loadProductsFromApi() {
+async function loadProductsFromApi({ hasCachedProducts = false } = {}) {
   if (!isProductsApiConfigured()) {
     renderCategories();
     renderProducts();
@@ -362,15 +375,46 @@ async function loadProductsFromApi() {
       throw new Error(data.error || "La respuesta del catalogo no es valida.");
     }
 
-    refreshCatalogData(data.productos.map(normalizeProduct));
+    const normalizedProducts = data.productos.map(normalizeProduct);
+    saveProductsCache(normalizedProducts);
+    refreshCatalogData(normalizedProducts);
     renderCategories();
     renderProducts();
   } catch (error) {
     console.error(error);
+    if (hasCachedProducts) return;
+
     products = [];
     refreshCatalogData(products);
     renderCategories();
     renderCatalogState("error");
+  }
+}
+
+function readProductsCache() {
+  try {
+    const rawCache = localStorage.getItem(CATALOG_STORAGE_KEY);
+    if (!rawCache) return null;
+
+    const parsedCache = JSON.parse(rawCache);
+    if (!Array.isArray(parsedCache.productos)) return null;
+
+    return parsedCache.productos.map(normalizeProduct);
+  } catch (error) {
+    console.warn("No se pudo leer el catalogo guardado.", error);
+    localStorage.removeItem(CATALOG_STORAGE_KEY);
+    return null;
+  }
+}
+
+function saveProductsCache(nextProducts) {
+  try {
+    localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify({
+      cachedAt: new Date().toISOString(),
+      productos: nextProducts,
+    }));
+  } catch (error) {
+    console.warn("No se pudo guardar el catalogo local.", error);
   }
 }
 
@@ -412,7 +456,9 @@ function normalizeProduct(product) {
     descripcion: product.descripcion || "Producto artesanal de Calefica.",
     aroma: product.aroma || "A eleccion",
     precio: Number(product.precio) || 0,
+    imagenId: product.imagenId || "",
     nombreImagen: product.nombreImagen || "",
+    // Fallback de imagen: Apps Script prioriza imagenId, luego imagenUrl y por ultimo Drive por nombre.
     imagen: product.imagenUrl || product.imagen || "",
     linkMercadoPago: product.linkMercadoPago || product.paymentLinks?.mercadoPago || "",
     linkQR: product.linkQR || product.paymentLinks?.qr || "",
@@ -564,8 +610,29 @@ function renderCatalogState(state) {
   if (!current) return;
   if (title) title.textContent = current.title;
   if (count) count.textContent = current.count;
-  track.innerHTML = `<div class="catalog-state">${current.message}</div>`;
+  track.innerHTML = state === "loading"
+    ? renderCatalogSkeleton(current.message)
+    : `<div class="catalog-state">${current.message}</div>`;
   dots.innerHTML = "";
+}
+
+function renderCatalogSkeleton(message) {
+  return Array.from({ length: 3 }, (_, index) => `
+    <article class="product-card product-card--skeleton" aria-hidden="${index > 0}">
+      <div class="product-image skeleton-shimmer"></div>
+      <div class="product-body">
+        <span class="skeleton-line skeleton-line--title"></span>
+        <span class="skeleton-line"></span>
+        <span class="skeleton-line skeleton-line--short"></span>
+        <div class="quantity-row skeleton-box"></div>
+        <div class="product-actions">
+          <span class="skeleton-button"></span>
+          <span class="skeleton-button skeleton-button--soft"></span>
+        </div>
+      </div>
+      ${index === 0 ? `<span class="catalog-loading-text">${message}</span>` : ""}
+    </article>
+  `).join("");
 }
 
 function bindProductActions(track) {
