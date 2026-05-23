@@ -1505,27 +1505,9 @@ body.dark .product-modal__close {
   padding: clamp(1.2rem, 4vw, 2.2rem);
 }
 
-.product-modal__badges {
-  min-height: 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: .45rem;
-  padding-right: 3rem;
-}
-
-.product-modal__handmade {
-  width: fit-content;
-  padding: .45rem .65rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--text);
-  background: color-mix(in srgb, var(--surface-solid) 76%, transparent);
-  font-size: .72rem;
-  font-weight: 900;
-}
-
 .product-modal__content h3 {
   margin: 0;
+  padding-right: 3rem;
   font-family: var(--serif);
   font-size: clamp(2rem, 5vw, 3.4rem);
   line-height: .98;
@@ -2087,10 +2069,6 @@ body.dark .footer a:hover {
   .product-modal__content {
     max-height: 52dvh;
     padding: 1rem;
-  }
-
-  .product-modal__badges {
-    padding-right: 3.2rem;
   }
 
   .product-modal__actions {

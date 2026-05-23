@@ -688,19 +688,11 @@ function openProductModal(product) {
   activeModalProductId = product.id;
   const quantity = quantities.get(product.id) || 1;
   const image = document.getElementById("modal-product-image");
-  const badges = document.getElementById("modal-product-badges");
   const buyButton = document.getElementById("modal-product-buy");
 
   if (image) {
     image.classList.toggle("product-modal__image--placeholder", !product.imagen);
     image.style.backgroundImage = product.imagen ? `url('${product.imagen}')` : "";
-  }
-
-  if (badges) {
-    badges.innerHTML = `
-      ${product.destacado === "SI" ? `<span class="product-badge">Destacado</span>` : ""}
-      ${product.stock === "NO" ? `<span class="product-badge product-badge--stock">Sin stock</span>` : ""}
-    `;
   }
 
   document.getElementById("modal-product-title").textContent = product.nombre;
