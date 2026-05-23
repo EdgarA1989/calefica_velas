@@ -101,7 +101,7 @@
       <div class="section-heading">
         <p class="eyebrow">Catalogo boutique</p>
         <h2>Elegí tu vela favorita</h2>
-        <p>Selecciona una categoria, ajusta la cantidad y compra o consulta por el producto elegido.</p>
+        <p>Selecciona una categoria, abrí el detalle del producto y elegí la cantidad para comprar o consultar.</p>
       </div>
 
       <div class="catalog-layout">
@@ -156,6 +156,36 @@
       </div>
     </section>
   </main>
+
+  <div class="product-modal" id="product-modal" aria-hidden="true">
+    <button class="product-modal__backdrop" type="button" data-close-product-modal aria-label="Cerrar detalle de producto"></button>
+    <div class="product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
+      <button class="product-modal__close" type="button" data-close-product-modal aria-label="Cerrar">×</button>
+      <div class="product-modal__image" id="modal-product-image" aria-hidden="true"></div>
+      <div class="product-modal__content">
+        <div class="product-modal__badges" id="modal-product-badges"></div>
+        <span class="product-modal__handmade">Hecho a mano</span>
+        <h3 id="modal-product-title"></h3>
+        <p class="product-modal__description" id="modal-product-description"></p>
+        <div class="product-modal__meta">
+          <span>Aroma: <strong id="modal-product-aroma"></strong></span>
+          <span class="price" id="modal-product-price"></span>
+        </div>
+        <div class="product-modal__quantity">
+          <span class="product-modal__quantity-label">Cantidad</span>
+          <div class="quantity-control">
+            <button class="qty-btn" type="button" data-modal-qty="decrease" aria-label="Restar cantidad">-</button>
+            <span class="quantity-value" id="modal-product-quantity">1</span>
+            <button class="qty-btn" type="button" data-modal-qty="increase" aria-label="Sumar cantidad">+</button>
+          </div>
+        </div>
+        <div class="product-modal__actions">
+          <button class="btn btn--primary" id="modal-product-buy" type="button">Comprar</button>
+          <button class="btn btn--soft" id="modal-product-consult" type="button">Consultar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="footer-grid">

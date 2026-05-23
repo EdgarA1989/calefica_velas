@@ -267,6 +267,7 @@ let categories = [{ id: "todos", label: "Todos" }];
 let activeCategory = "todos";
 let currentSlide = 0;
 let quantities = new Map(products.map(product => [product.id, 1]));
+let activeModalProductId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
@@ -274,6 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initContactLinks();
   initCatalog();
   initCarouselControls();
+  initProductModal();
   initContactForm();
   initReveal();
   document.getElementById("year").textContent = new Date().getFullYear();
@@ -538,7 +540,6 @@ function renderProducts() {
 }
 
 function renderProductCard(product) {
-  const quantity = quantities.get(product.id) || 1;
   const isOutOfStock = product.stock === "NO";
   const imageStyle = product.imagen
     ? `style="background-image: url('${product.imagen}')"`
@@ -553,22 +554,12 @@ function renderProductCard(product) {
       </div>
       <div class="product-body">
         <h4>${product.nombre}</h4>
-        <p>${product.descripcion}</p>
         <div class="product-meta">
           <span>Aroma: <strong>${product.aroma}</strong></span>
           <span class="price">${formatPrice(product.precio)}</span>
         </div>
-        <div class="quantity-row">
-          <span>Cantidad</span>
-          <div class="quantity-control">
-            <button class="qty-btn" type="button" data-qty="decrease" aria-label="Restar cantidad">-</button>
-            <span class="quantity-value">${quantity}</span>
-            <button class="qty-btn" type="button" data-qty="increase" aria-label="Sumar cantidad">+</button>
-          </div>
-        </div>
         <div class="product-actions">
-          <button class="btn btn--primary" type="button" data-buy ${isOutOfStock ? "disabled" : ""}>Comprar</button>
-          <button class="btn btn--soft" type="button" data-consult>Consultar</button>
+          <button class="btn btn--primary" type="button" data-open-detail>Ver detalle</button>
         </div>
       </div>
     </article>
@@ -639,30 +630,113 @@ function bindProductActions(track) {
     const product = products.find(item => item.id === card.dataset.productId);
     if (!product) return;
 
-    const quantityValue = card.querySelector(".quantity-value");
-
-    card.querySelectorAll("[data-qty]").forEach(button => {
-      button.addEventListener("click", () => {
-        const current = quantities.get(product.id) || 1;
-        const next = button.dataset.qty === "increase"
-          ? current + 1
-          : Math.max(1, current - 1);
-        quantities.set(product.id, next);
-        quantityValue.textContent = String(next);
-      });
-    });
-
-    card.querySelector("[data-buy]").addEventListener("click", () => {
-      const quantity = quantities.get(product.id) || 1;
-      const paymentUrl = buildPaymentUrl(product, quantity);
-      window.open(paymentUrl, "_blank", "noopener,noreferrer");
-    });
-
-    card.querySelector("[data-consult]").addEventListener("click", () => {
-      const quantity = quantities.get(product.id) || 1;
-      window.open(getProductWhatsappUrl(product, quantity), "_blank", "noopener,noreferrer");
+    card.querySelector("[data-open-detail]")?.addEventListener("click", () => {
+      openProductModal(product);
     });
   });
+}
+
+function initProductModal() {
+  const modal = document.getElementById("product-modal");
+  if (!modal) return;
+
+  modal.querySelectorAll("[data-close-product-modal]").forEach(button => {
+    button.addEventListener("click", closeProductModal);
+  });
+
+  modal.querySelectorAll("[data-modal-qty]").forEach(button => {
+    button.addEventListener("click", () => {
+      const product = getActiveModalProduct();
+      if (!product) return;
+
+      const current = quantities.get(product.id) || 1;
+      const next = button.dataset.modalQty === "increase"
+        ? current + 1
+        : Math.max(1, current - 1);
+      quantities.set(product.id, next);
+      updateModalQuantity(next);
+    });
+  });
+
+  document.getElementById("modal-product-buy")?.addEventListener("click", () => {
+    const product = getActiveModalProduct();
+    if (!product || product.stock === "NO") return;
+
+    const quantity = quantities.get(product.id) || 1;
+    window.open(buildPaymentUrl(product, quantity), "_blank", "noopener,noreferrer");
+  });
+
+  document.getElementById("modal-product-consult")?.addEventListener("click", () => {
+    const product = getActiveModalProduct();
+    if (!product) return;
+
+    const quantity = quantities.get(product.id) || 1;
+    window.open(getProductWhatsappUrl(product, quantity), "_blank", "noopener,noreferrer");
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && modal.classList.contains("is-open")) {
+      closeProductModal();
+    }
+  });
+}
+
+function openProductModal(product) {
+  const modal = document.getElementById("product-modal");
+  if (!modal) return;
+
+  activeModalProductId = product.id;
+  const quantity = quantities.get(product.id) || 1;
+  const image = document.getElementById("modal-product-image");
+  const badges = document.getElementById("modal-product-badges");
+  const buyButton = document.getElementById("modal-product-buy");
+
+  if (image) {
+    image.classList.toggle("product-modal__image--placeholder", !product.imagen);
+    image.style.backgroundImage = product.imagen ? `url('${product.imagen}')` : "";
+  }
+
+  if (badges) {
+    badges.innerHTML = `
+      ${product.destacado === "SI" ? `<span class="product-badge">Destacado</span>` : ""}
+      ${product.stock === "NO" ? `<span class="product-badge product-badge--stock">Sin stock</span>` : ""}
+    `;
+  }
+
+  document.getElementById("modal-product-title").textContent = product.nombre;
+  document.getElementById("modal-product-description").textContent = product.descripcion;
+  document.getElementById("modal-product-aroma").textContent = product.aroma;
+  document.getElementById("modal-product-price").textContent = formatPrice(product.precio);
+  updateModalQuantity(quantity);
+
+  if (buyButton) {
+    buyButton.disabled = product.stock === "NO";
+    buyButton.textContent = product.stock === "NO" ? "Sin stock" : "Comprar";
+  }
+
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+  modal.querySelector(".product-modal__close")?.focus();
+}
+
+function closeProductModal() {
+  const modal = document.getElementById("product-modal");
+  if (!modal) return;
+
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+  activeModalProductId = null;
+}
+
+function getActiveModalProduct() {
+  return products.find(product => product.id === activeModalProductId);
+}
+
+function updateModalQuantity(quantity) {
+  const quantityValue = document.getElementById("modal-product-quantity");
+  if (quantityValue) quantityValue.textContent = String(quantity);
 }
 
 function initCarouselControls() {
