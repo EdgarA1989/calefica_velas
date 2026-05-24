@@ -271,7 +271,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initMenu();
   initContactLinks();
   initCatalog();
-  initCatalogHoldScroll();
   initCarouselControls();
   initProductModal();
   initContactForm();
@@ -729,65 +728,6 @@ function updateModalQuantity(quantity) {
 function initCarouselControls() {
   document.getElementById("prev-product")?.addEventListener("click", () => moveCarousel(-1));
   document.getElementById("next-product")?.addEventListener("click", () => moveCarousel(1));
-}
-
-function initCatalogHoldScroll() {
-  const track = document.getElementById("products-track");
-  if (!track) return;
-
-  const mobileQuery = window.matchMedia("(max-width: 760px)");
-  let unlockTimer = 0;
-  let lockTimer = 0;
-  let startX = 0;
-  let startY = 0;
-
-  const unlockScroll = () => {
-    window.clearTimeout(unlockTimer);
-    window.clearTimeout(lockTimer);
-    unlockTimer = 0;
-    track.classList.add("is-scroll-unlocked");
-  };
-
-  const lockScroll = () => {
-    window.clearTimeout(unlockTimer);
-    window.clearTimeout(lockTimer);
-    unlockTimer = 0;
-    lockTimer = 0;
-    track.classList.remove("is-scroll-unlocked");
-  };
-
-  const scheduleLock = () => {
-    window.clearTimeout(unlockTimer);
-    window.clearTimeout(lockTimer);
-    unlockTimer = 0;
-    lockTimer = window.setTimeout(lockScroll, 1800);
-  };
-
-  track.addEventListener("pointerdown", event => {
-    if (!mobileQuery.matches || event.pointerType === "mouse") return;
-
-    startX = event.clientX;
-    startY = event.clientY;
-    window.clearTimeout(lockTimer);
-    unlockTimer = window.setTimeout(unlockScroll, 320);
-  });
-
-  track.addEventListener("pointermove", event => {
-    if (!unlockTimer) return;
-
-    const movement = Math.hypot(event.clientX - startX, event.clientY - startY);
-    if (movement > 10) {
-      lockScroll();
-    }
-  });
-
-  ["pointerup", "pointercancel", "pointerleave"].forEach(eventName => {
-    track.addEventListener(eventName, scheduleLock);
-  });
-
-  document.addEventListener("pointerdown", event => {
-    if (!track.contains(event.target)) lockScroll();
-  });
 }
 
 function moveCarousel(direction) {
