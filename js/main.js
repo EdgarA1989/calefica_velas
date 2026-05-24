@@ -737,12 +737,30 @@ function initCatalogHoldScroll() {
 
   const mobileQuery = window.matchMedia("(max-width: 760px)");
   let unlockTimer = 0;
+  let lockTimer = 0;
   let startX = 0;
   let startY = 0;
 
+  const unlockScroll = () => {
+    window.clearTimeout(unlockTimer);
+    window.clearTimeout(lockTimer);
+    unlockTimer = 0;
+    track.classList.add("is-scroll-unlocked");
+  };
+
   const lockScroll = () => {
     window.clearTimeout(unlockTimer);
+    window.clearTimeout(lockTimer);
+    unlockTimer = 0;
+    lockTimer = 0;
     track.classList.remove("is-scroll-unlocked");
+  };
+
+  const scheduleLock = () => {
+    window.clearTimeout(unlockTimer);
+    window.clearTimeout(lockTimer);
+    unlockTimer = 0;
+    lockTimer = window.setTimeout(lockScroll, 1800);
   };
 
   track.addEventListener("pointerdown", event => {
@@ -750,10 +768,8 @@ function initCatalogHoldScroll() {
 
     startX = event.clientX;
     startY = event.clientY;
-    unlockTimer = window.setTimeout(() => {
-      unlockTimer = 0;
-      track.classList.add("is-scroll-unlocked");
-    }, 260);
+    window.clearTimeout(lockTimer);
+    unlockTimer = window.setTimeout(unlockScroll, 320);
   });
 
   track.addEventListener("pointermove", event => {
@@ -766,7 +782,11 @@ function initCatalogHoldScroll() {
   });
 
   ["pointerup", "pointercancel", "pointerleave"].forEach(eventName => {
-    track.addEventListener(eventName, lockScroll);
+    track.addEventListener(eventName, scheduleLock);
+  });
+
+  document.addEventListener("pointerdown", event => {
+    if (!track.contains(event.target)) lockScroll();
   });
 }
 
