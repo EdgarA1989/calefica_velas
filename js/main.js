@@ -1,4 +1,3 @@
-// Cambiar estos datos por los enlaces reales de la marca.
 const BRAND_CONFIG = {
   whatsappNumber: "549XXXXXXXXXX",
   instagramUrl: "https://www.instagram.com/",
@@ -10,7 +9,6 @@ const PRODUCTS_API_URL = "https://script.google.com/macros/s/AKfycbxfWGJ1Is0XOMV
 const DEFAULT_WHATSAPP_NUMBER = BRAND_CONFIG.whatsappNumber;
 const PLACEHOLDER_IMAGE = "";
 
-// CATALOG_STORAGE_KEY guarda el ultimo catalogo valido para mostrarlo al instante.
 const CATALOG_STORAGE_KEY = "calefica-products-cache-v1";
 
 const LEGACY_CATEGORY_LABELS = {
@@ -21,7 +19,6 @@ const LEGACY_CATEGORY_LABELS = {
   extras: "Difusores y extras",
 };
 
-// Editar productos aca. Los links pueden apuntar a Mercado Pago, QR externo u otra plataforma.
 let products = [
   {
     id: "ambar-nude",
@@ -274,6 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initMenu();
   initContactLinks();
   initCatalog();
+  initCatalogHoldScroll();
   initCarouselControls();
   initProductModal();
   initContactForm();
@@ -460,7 +458,6 @@ function normalizeProduct(product) {
     precio: Number(product.precio) || 0,
     imagenId: product.imagenId || "",
     nombreImagen: product.nombreImagen || "",
-    // Fallback de imagen: Apps Script prioriza imagenId, luego imagenUrl y por ultimo Drive por nombre.
     imagen: product.imagenUrl || product.imagen || "",
     linkMercadoPago: product.linkMercadoPago || product.paymentLinks?.mercadoPago || "",
     linkQR: product.linkQR || product.paymentLinks?.qr || "",
@@ -614,10 +611,8 @@ function renderCatalogSkeleton(message) {
         <span class="skeleton-line skeleton-line--title"></span>
         <span class="skeleton-line"></span>
         <span class="skeleton-line skeleton-line--short"></span>
-        <div class="quantity-row skeleton-box"></div>
         <div class="product-actions">
           <span class="skeleton-button"></span>
-          <span class="skeleton-button skeleton-button--soft"></span>
         </div>
       </div>
       ${index === 0 ? `<span class="catalog-loading-text">${message}</span>` : ""}
@@ -734,6 +729,45 @@ function updateModalQuantity(quantity) {
 function initCarouselControls() {
   document.getElementById("prev-product")?.addEventListener("click", () => moveCarousel(-1));
   document.getElementById("next-product")?.addEventListener("click", () => moveCarousel(1));
+}
+
+function initCatalogHoldScroll() {
+  const track = document.getElementById("products-track");
+  if (!track) return;
+
+  const mobileQuery = window.matchMedia("(max-width: 760px)");
+  let unlockTimer = 0;
+  let startX = 0;
+  let startY = 0;
+
+  const lockScroll = () => {
+    window.clearTimeout(unlockTimer);
+    track.classList.remove("is-scroll-unlocked");
+  };
+
+  track.addEventListener("pointerdown", event => {
+    if (!mobileQuery.matches || event.pointerType === "mouse") return;
+
+    startX = event.clientX;
+    startY = event.clientY;
+    unlockTimer = window.setTimeout(() => {
+      unlockTimer = 0;
+      track.classList.add("is-scroll-unlocked");
+    }, 260);
+  });
+
+  track.addEventListener("pointermove", event => {
+    if (!unlockTimer) return;
+
+    const movement = Math.hypot(event.clientX - startX, event.clientY - startY);
+    if (movement > 10) {
+      lockScroll();
+    }
+  });
+
+  ["pointerup", "pointercancel", "pointerleave"].forEach(eventName => {
+    track.addEventListener(eventName, lockScroll);
+  });
 }
 
 function moveCarousel(direction) {
