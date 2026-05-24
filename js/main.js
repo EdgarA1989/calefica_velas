@@ -263,8 +263,12 @@ let products = [
 let categories = [{ id: "todos", label: "Todos" }];
 let activeCategory = "todos";
 let currentSlide = 0;
+let mobileCatalogPage = 0;
 let quantities = new Map(products.map(product => [product.id, 1]));
 let activeModalProductId = null;
+let modalHistoryActive = false;
+let modalScrollY = 0;
+const MOBILE_CATALOG_PAGE_SIZE = 4;
 
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
@@ -272,6 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initContactLinks();
   initCatalog();
   initCarouselControls();
+  initMobileCatalogControls();
   initProductModal();
   initContactForm();
   initReveal();
@@ -495,6 +500,7 @@ function renderCategories() {
     button.addEventListener("click", () => {
       activeCategory = button.dataset.category;
       currentSlide = 0;
+      mobileCatalogPage = 0;
       renderCategories();
       renderProducts();
     });
@@ -532,6 +538,7 @@ function renderProducts() {
 
   bindProductActions(track);
   bindDots(dots, track);
+  updateMobileCatalogPager();
   scrollToSlide(track, currentSlide);
 }
 
@@ -600,6 +607,7 @@ function renderCatalogState(state) {
     ? renderCatalogSkeleton(current.message)
     : `<div class="catalog-state">${current.message}</div>`;
   dots.innerHTML = "";
+  updateMobileCatalogPager();
 }
 
 function renderCatalogSkeleton(message) {
@@ -673,13 +681,21 @@ function initProductModal() {
       closeProductModal();
     }
   });
+
+  window.addEventListener("popstate", () => {
+    if (modal.classList.contains("is-open")) {
+      closeProductModal({ fromHistory: true });
+    }
+  });
 }
 
 function openProductModal(product) {
   const modal = document.getElementById("product-modal");
   if (!modal) return;
 
+  const wasOpen = modal.classList.contains("is-open");
   activeModalProductId = product.id;
+  modalScrollY = window.scrollY;
   const quantity = quantities.get(product.id) || 1;
   const image = document.getElementById("modal-product-image");
   const buyButton = document.getElementById("modal-product-buy");
@@ -703,10 +719,16 @@ function openProductModal(product) {
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
+
+  if (!wasOpen && !modalHistoryActive) {
+    history.pushState({ caleficaProductModal: true }, "", window.location.href);
+    modalHistoryActive = true;
+  }
+
   modal.querySelector(".product-modal__close")?.focus();
 }
 
-function closeProductModal() {
+function closeProductModal({ fromHistory = false } = {}) {
   const modal = document.getElementById("product-modal");
   if (!modal) return;
 
@@ -714,6 +736,15 @@ function closeProductModal() {
   modal.setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
   activeModalProductId = null;
+
+  if (modalScrollY) {
+    window.scrollTo({ top: modalScrollY, behavior: "auto" });
+  }
+
+  if (modalHistoryActive) {
+    modalHistoryActive = false;
+    if (!fromHistory) history.back();
+  }
 }
 
 function getActiveModalProduct() {
@@ -728,6 +759,47 @@ function updateModalQuantity(quantity) {
 function initCarouselControls() {
   document.getElementById("prev-product")?.addEventListener("click", () => moveCarousel(-1));
   document.getElementById("next-product")?.addEventListener("click", () => moveCarousel(1));
+}
+
+function initMobileCatalogControls() {
+  document.getElementById("mobile-catalog-prev")?.addEventListener("click", () => moveMobileCatalogPage(-1));
+  document.getElementById("mobile-catalog-next")?.addEventListener("click", () => moveMobileCatalogPage(1));
+  window.addEventListener("resize", updateMobileCatalogPager);
+}
+
+function moveMobileCatalogPage(direction) {
+  mobileCatalogPage += direction;
+  updateMobileCatalogPager();
+}
+
+function updateMobileCatalogPager() {
+  const track = document.getElementById("products-track");
+  const controls = document.getElementById("mobile-catalog-controls");
+  const prevButton = document.getElementById("mobile-catalog-prev");
+  const nextButton = document.getElementById("mobile-catalog-next");
+  if (!track || !controls || !prevButton || !nextButton) return;
+
+  const isMobile = window.matchMedia("(max-width: 760px)").matches;
+  const cards = [...track.querySelectorAll(".product-card:not(.product-card--skeleton)")];
+  const maxPage = Math.max(0, Math.ceil(cards.length / MOBILE_CATALOG_PAGE_SIZE) - 1);
+
+  if (!isMobile || cards.length <= MOBILE_CATALOG_PAGE_SIZE) {
+    controls.hidden = true;
+    cards.forEach(card => card.classList.remove("is-mobile-hidden"));
+    return;
+  }
+
+  mobileCatalogPage = Math.min(Math.max(mobileCatalogPage, 0), maxPage);
+  const start = mobileCatalogPage * MOBILE_CATALOG_PAGE_SIZE;
+  const end = start + MOBILE_CATALOG_PAGE_SIZE;
+
+  cards.forEach((card, index) => {
+    card.classList.toggle("is-mobile-hidden", index < start || index >= end);
+  });
+
+  controls.hidden = false;
+  prevButton.disabled = mobileCatalogPage === 0;
+  nextButton.disabled = mobileCatalogPage === maxPage;
 }
 
 function moveCarousel(direction) {
