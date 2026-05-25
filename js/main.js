@@ -273,6 +273,7 @@ const MOBILE_CATALOG_PAGE_SIZE = 4;
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initMenu();
+  initHomeLinks();
   initContactLinks();
   initCatalog();
   initCarouselControls();
@@ -335,6 +336,24 @@ function initMenu() {
 
   panel.querySelectorAll("a").forEach(link => {
     link.addEventListener("click", closeMenu);
+  });
+}
+
+function initHomeLinks() {
+  const closeMenu = () => {
+    document.getElementById("nav-panel")?.classList.remove("is-open");
+    document.getElementById("menu-toggle")?.classList.remove("is-open");
+    document.getElementById("menu-toggle")?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("menu-open");
+  };
+
+  document.querySelectorAll('a[href="#inicio"]').forEach(link => {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      closeMenu();
+      history.replaceState(null, "", "#inicio");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   });
 }
 
