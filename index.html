@@ -15,7 +15,7 @@
     <nav class="navbar" aria-label="Navegacion principal">
       <a class="brand" href="#inicio" aria-label="Ir al inicio">
         <span class="brand-logo" aria-hidden="true">
-          <img src="assets/img/calefica_logo_trim.png" alt="">
+          <img src="assets/img/calefica_logo.png" alt="">
         </span>
       </a>
 
@@ -32,6 +32,12 @@
         <a href="#contacto">Contacto</a>
         <a class="nav-cta" href="#catalogo">Ver catalogo</a>
       </div>
+
+      <button class="cart-button" id="cart-button" type="button" aria-label="Ver mi pedido">
+        <svg class="cart-button__icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-button__label">Pedido</span>
+        <span class="cart-counter" id="cart-counter" aria-live="polite" hidden>0</span>
+      </button>
 
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar a modo oscuro" aria-pressed="false">
         <span class="theme-candles" aria-hidden="true">
@@ -59,7 +65,6 @@
         <div class="hero-photo hero-photo--main"></div>
         <div class="hero-photo hero-photo--small"></div>
         <div class="floating-note">
-          <span>Hechas a mano</span>
           <strong>Cera de soja natural</strong>
         </div>
       </div>
@@ -161,6 +166,32 @@
     </section>
   </main>
 
+  <button class="cart-floating" id="cart-floating" type="button" aria-label="Ver mi pedido">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="cart-floating__counter" id="cart-floating-counter" aria-live="polite" hidden>0</span>
+  </button>
+
+  <div class="cart-overlay" id="cart-overlay"></div>
+
+  <div class="cart-drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-label="Tu pedido" aria-hidden="true">
+    <div class="cart-header">
+      <h2 class="cart-title">Mi pedido</h2>
+      <button class="cart-close" id="cart-close" type="button" aria-label="Cerrar pedido">&times;</button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total estimado</span>
+        <strong id="cart-total-value">$ 0</strong>
+      </div>
+      <div class="cart-footer__actions">
+        <button class="cart-clear" id="cart-clear" type="button" hidden>Vaciar pedido</button>
+        <button class="btn btn--primary cart-checkout" id="cart-checkout" type="button" disabled>Enviar pedido por WhatsApp</button>
+        <p class="cart-checkout-status" id="cart-checkout-status" role="status"></p>
+      </div>
+    </div>
+  </div>
+
   <div class="product-modal" id="product-modal" aria-hidden="true">
     <button class="product-modal__backdrop" type="button" data-close-product-modal aria-label="Cerrar detalle de producto"></button>
     <div class="product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
@@ -194,7 +225,7 @@
       <div>
         <a class="brand" href="#inicio">
           <span class="brand-logo brand-logo--footer" aria-hidden="true">
-            <img src="assets/img/calefica_logo_trim.png" alt="">
+            <img src="assets/img/calefica_logo.png" alt="">
           </span>
         </a>
         <p>Velas de soja artesanales, hechas con dedicacion y aromas pensados para momentos especiales.</p>

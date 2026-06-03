@@ -9,7 +9,8 @@ const PRODUCTS_API_URL = "https://script.google.com/macros/s/AKfycbxfWGJ1Is0XOMV
 const DEFAULT_WHATSAPP_NUMBER = BRAND_CONFIG.whatsappNumber;
 const PLACEHOLDER_IMAGE = "";
 
-const CATALOG_STORAGE_KEY = "calefica-products-cache-v1";
+const CATALOG_STORAGE_KEY = "calefica_productos_v3";
+const CART_STORAGE_KEY = "calefica_cart_v1";
 
 const LEGACY_CATEGORY_LABELS = {
   clasicas: "Velas clasicas",
@@ -19,245 +20,17 @@ const LEGACY_CATEGORY_LABELS = {
   extras: "Difusores y extras",
 };
 
+const IMG = "assets/img/imagenes-productos-calefica/02 - Imagenes productos/";
+
 let products = [
-  {
-    id: "ambar-nude",
-    nombre: "Vela Ambar Nude",
-    categoria: "clasicas",
-    descripcion: "Vela minimalista en tono nude, ideal para crear una luz suave y calida.",
-    aroma: "Ambar suave",
-    precio: 8500,
-    imagen: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: {
-      mercadoPago: "https://www.mercadopago.com.ar/",
-      qr: "",
-    },
-    whatsappText: "Hola, quiero consultar por la Vela Ambar Nude.",
-  },
-  {
-    id: "crema-natural",
-    nombre: "Vela Crema Natural",
-    categoria: "clasicas",
-    descripcion: "Una vela simple y elegante para mesas de luz, livings y pequenos rituales.",
-    aroma: "Algodon y almizcle",
-    precio: 7900,
-    imagen: "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Crema Natural.",
-  },
-  {
-    id: "arena-suave",
-    nombre: "Vela Arena Suave",
-    categoria: "clasicas",
-    descripcion: "Envase neutro, cera de soja y terminacion delicada para uso diario.",
-    aroma: "Te blanco",
-    precio: 8200,
-    imagen: "https://images.unsplash.com/photo-1603204077779-bed963ea7d0e?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Arena Suave.",
-  },
-  {
-    id: "nude-cotidiana",
-    nombre: "Vela Nude Cotidiana",
-    categoria: "clasicas",
-    descripcion: "Un clasico calido para acompanar tardes tranquilas y espacios armoniosos.",
-    aroma: "Madera clara",
-    precio: 8700,
-    imagen: "https://images.unsplash.com/photo-1602910344008-22f323cc1817?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Nude Cotidiana.",
-  },
-  {
-    id: "lavanda-soft",
-    nombre: "Vela Lavanda Soft",
-    categoria: "aromaticas",
-    descripcion: "Fragancia relajante y delicada para dormitorios, lectura o rituales de descanso.",
-    aroma: "Lavanda y vainilla",
-    precio: 9200,
-    imagen: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=800&q=82",
-    paymentLinks: {
-      mercadoPago: "https://www.mercadopago.com.ar/",
-      qr: "",
-    },
-    whatsappText: "Hola, quiero consultar por la Vela Lavanda Soft.",
-  },
-  {
-    id: "vainilla-calida",
-    nombre: "Vela Vainilla Calida",
-    categoria: "aromaticas",
-    descripcion: "Una vela dulce y envolvente, perfecta para ambientes acogedores.",
-    aroma: "Vainilla cremosa",
-    precio: 9200,
-    imagen: "https://images.unsplash.com/photo-1603204077779-bed963ea7d0e?auto=format&fit=crop&w=800&q=82",
-    paymentLinks: {
-      mercadoPago: "https://www.mercadopago.com.ar/",
-      qr: "",
-    },
-    whatsappText: "Hola, quiero consultar por la Vela Vainilla Calida.",
-  },
-  {
-    id: "jazmin-sereno",
-    nombre: "Vela Jazmin Sereno",
-    categoria: "aromaticas",
-    descripcion: "Aroma floral suave, femenino y limpio para perfumar con elegancia.",
-    aroma: "Jazmin y peonia",
-    precio: 9400,
-    imagen: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Jazmin Sereno.",
-  },
-  {
-    id: "cedro-dulce",
-    nombre: "Vela Cedro Dulce",
-    categoria: "aromaticas",
-    descripcion: "Notas amaderadas y cremosas para una experiencia calida y envolvente.",
-    aroma: "Cedro y tonka",
-    precio: 9600,
-    imagen: "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Cedro Dulce.",
-  },
-  {
-    id: "rosa-mosqueta",
-    nombre: "Vela Rosa Mosqueta",
-    categoria: "decorativas",
-    descripcion: "Diseno delicado con inspiracion floral para regalar o decorar espacios especiales.",
-    aroma: "Rosa mosqueta",
-    precio: 9800,
-    imagen: "https://images.unsplash.com/photo-1602910344008-22f323cc1817?auto=format&fit=crop&w=800&q=82",
-    paymentLinks: {
-      mercadoPago: "https://www.mercadopago.com.ar/",
-      qr: "",
-    },
-    whatsappText: "Hola, quiero consultar por la Vela Rosa Mosqueta.",
-  },
-  {
-    id: "flor-seca",
-    nombre: "Vela Flor Seca",
-    categoria: "decorativas",
-    descripcion: "Terminacion artesanal con detalle botanico y paleta romantica.",
-    aroma: "Rosas y madera",
-    precio: 10500,
-    imagen: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Flor Seca.",
-  },
-  {
-    id: "copa-dorada",
-    nombre: "Vela Copa Dorada",
-    categoria: "decorativas",
-    descripcion: "Un detalle sofisticado para mesas, rincones especiales y regalos.",
-    aroma: "Ambar y vainilla",
-    precio: 11200,
-    imagen: "https://images.unsplash.com/photo-1603204077779-bed963ea7d0e?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Copa Dorada.",
-  },
-  {
-    id: "botanica-nude",
-    nombre: "Vela Botanica Nude",
-    categoria: "decorativas",
-    descripcion: "Pieza decorativa con inspiracion natural y presencia boutique.",
-    aroma: "Verbena suave",
-    precio: 10800,
-    imagen: "https://images.unsplash.com/photo-1602910344008-22f323cc1817?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Vela Botanica Nude.",
-  },
-  {
-    id: "combo-relax",
-    nombre: "Combo Relax",
-    categoria: "combos",
-    descripcion: "Box con vela, detalle aromático y tarjeta. Pensado para regalar calma.",
-    aroma: "Mix relajante",
-    precio: 16800,
-    imagen: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=82",
-    paymentLinks: {
-      mercadoPago: "https://www.mercadopago.com.ar/",
-      qr: "",
-    },
-    whatsappText: "Hola, quiero consultar por el Combo Relax.",
-  },
-  {
-    id: "box-regalo-aromatico",
-    nombre: "Box Regalo Aromatico",
-    categoria: "combos",
-    descripcion: "Presentacion boutique para cumpleanos, agradecimientos o fechas especiales.",
-    aroma: "A eleccion",
-    precio: 20500,
-    imagen: "https://images.unsplash.com/photo-1513745405825-efaf9a49315f?auto=format&fit=crop&w=800&q=82",
-    paymentLinks: {
-      mercadoPago: "https://www.mercadopago.com.ar/",
-      qr: "",
-    },
-    whatsappText: "Hola, quiero consultar por el Box Regalo Aromatico.",
-  },
-  {
-    id: "combo-madera",
-    nombre: "Combo Madera Clara",
-    categoria: "combos",
-    descripcion: "Vela, fosforera y detalle en madera cruda para un regalo natural.",
-    aroma: "Cedro suave",
-    precio: 18500,
-    imagen: "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por el Combo Madera Clara.",
-  },
-  {
-    id: "box-rosa",
-    nombre: "Box Rosa Viejo",
-    categoria: "combos",
-    descripcion: "Presentacion delicada con vela, tarjeta y envoltorio en tonos rosados.",
-    aroma: "Rosa y vainilla",
-    precio: 19800,
-    imagen: "https://images.unsplash.com/photo-1513745405825-efaf9a49315f?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por el Box Rosa Viejo.",
-  },
-  {
-    id: "difusor-nude",
-    nombre: "Difusor Nude",
-    categoria: "extras",
-    descripcion: "Difusor aromatico de varillas para perfumar espacios de forma constante.",
-    aroma: "Bambu y lima",
-    precio: 9900,
-    imagen: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por el Difusor Nude.",
-  },
-  {
-    id: "spray-textil",
-    nombre: "Spray Textil",
-    categoria: "extras",
-    descripcion: "Bruma suave para telas, cortinas y ropa de cama.",
-    aroma: "Lavanda limpia",
-    precio: 7200,
-    imagen: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por el Spray Textil.",
-  },
-  {
-    id: "fosforera-ceramica",
-    nombre: "Fosforera Ceramica",
-    categoria: "extras",
-    descripcion: "Accesorio delicado para acompanar tus velas y completar el ritual.",
-    aroma: "Sin aroma",
-    precio: 4600,
-    imagen: "https://images.unsplash.com/photo-1603204077779-bed963ea7d0e?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Fosforera Ceramica.",
-  },
-  {
-    id: "tableta-aromatica",
-    nombre: "Tableta Aromatica",
-    categoria: "extras",
-    descripcion: "Tableta de cera perfumada para cajones, placares o pequenos rincones.",
-    aroma: "Vainilla y flores",
-    precio: 5200,
-    imagen: "https://images.unsplash.com/photo-1602910344008-22f323cc1817?auto=format&fit=crop&w=900&q=82",
-    paymentLinks: { mercadoPago: "https://www.mercadopago.com.ar/", qr: "" },
-    whatsappText: "Hola, quiero consultar por la Tableta Aromatica.",
-  },
+  { id: "vela-lavanda-soft",   activo: "SI", orden: 1, categoria: "Velas aromáticas",  nombre: "Vela Lavanda Soft",    descripcion: "Vela de soja artesanal con aroma suave a lavanda, ideal para crear un ambiente relajante y cálido.",                                              aroma: "Lavanda",         precio: 22000, imagen: IMG + "vela-lavanda-soft.jpg",   whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
+  { id: "vela-vainilla-calida",activo: "SI", orden: 2, categoria: "Velas aromáticas",  nombre: "Vela Vainilla Cálida", descripcion: "Aroma dulce y envolvente de vainilla, perfecta para acompañar momentos de descanso en casa.",                                              aroma: "Vainilla",        precio: 15000, imagen: IMG + "vela-vainilla-calida.jpg",whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
+  { id: "vela-rosa-mosqueta",  activo: "SI", orden: 3, categoria: "Velas aromáticas",  nombre: "Vela Rosa Mosqueta",   descripcion: "Una fragancia delicada, floral y elegante para perfumar espacios con una sensación suave y femenina.",                                      aroma: "Rosa mosqueta",   precio:  9000, imagen: IMG + "vela-rosa-mosqueta.jpg",  whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
+  { id: "vela-coco-beige",     activo: "SI", orden: 4, categoria: "Velas aromáticas",  nombre: "Vela Coco Beige",      descripcion: "Vela artesanal con notas suaves de coco, pensada para ambientes frescos, cálidos y naturales.",                                            aroma: "Coco",            precio: 17500, imagen: IMG + "vela-coco-beige.jpg",     whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "NO" },
+  { id: "vela-nude-clasica",   activo: "SI", orden: 5, categoria: "Velas clásicas",    nombre: "Vela Nude Clásica",    descripcion: "Diseño simple, natural y elegante. Ideal para decorar mesas, rincones o regalar.",                                                          aroma: "Sin aroma",       precio:  7000, imagen: IMG + "vela-nude-clasica.jpg",   whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "NO" },
+  { id: "vela-deco-flores",    activo: "SI", orden: 6, categoria: "Velas decorativas", nombre: "Vela Deco Flores",     descripcion: "Vela de soja decorativa con detalles delicados, pensada para regalar o decorar espacios especiales.",                                       aroma: "Floral suave",    precio: 11000, imagen: IMG + "vela-deco-flores.jpg",    whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
+  { id: "combo-relax",         activo: "SI", orden: 7, categoria: "Combos y regalos",  nombre: "Combo Relax",          descripcion: "Combo artesanal con vela aromática, detalles decorativos y presentación especial para regalar.",                                            aroma: "Lavanda + Vainilla", precio: 18000, imagen: IMG + "combo-relax.jpg",      whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
+  { id: "box-aromatico",       activo: "SI", orden: 8, categoria: "Combos y regalos",  nombre: "Box Aromático",        descripcion: "Box de regalo con selección de velas y aromas delicados. Ideal para cumpleaños, agradecimientos o fechas especiales.",                      aroma: "A elección",      precio: 22000, imagen: IMG + "box-aromatico.jpg",       whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "NO" },
 ];
 
 let categories = [{ id: "todos", label: "Todos" }];
@@ -281,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initProductModal();
   initContactForm();
   initReveal();
+  initCart();
   document.getElementById("year").textContent = new Date().getFullYear();
 });
 
@@ -455,6 +229,7 @@ function refreshCatalogData(nextProducts) {
     activeCategory = "todos";
   }
   currentSlide = 0;
+  syncCartWithProducts(products);
 }
 
 function buildCategories(productList) {
@@ -479,20 +254,26 @@ function normalizeProduct(product) {
     descripcion: product.descripcion || "Producto artesanal de Calefica.",
     aroma: product.aroma || "A eleccion",
     precio: Number(product.precio) || 0,
-    imagenId: product.imagenId || "",
     nombreImagen: product.nombreImagen || "",
     imagen: product.imagenUrl || product.imagen || "",
-    linkMercadoPago: product.linkMercadoPago || product.paymentLinks?.mercadoPago || "",
-    linkQR: product.linkQR || product.paymentLinks?.qr || "",
     whatsapp: product.whatsapp || DEFAULT_WHATSAPP_NUMBER,
     stock,
+    cantidadStock: String(product.cantidadStock || "").trim(),
     destacado,
   };
 }
 
 function normalizeYesNo(value, fallback = "NO") {
-  const normalized = String(value || fallback).trim().toUpperCase();
-  return normalized === "SI" || normalized === "SÍ" || normalized === "YES" || normalized === "TRUE" ? "SI" : "NO";
+  return normalizeSiNo(value, fallback);
+}
+
+function normalizeSiNo(value, fallback = "NO") {
+  const text = String(value == null ? fallback : value)
+    .trim()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase();
+  return text === "SI" || text === "YES" || text === "TRUE" ? "SI" : "NO";
 }
 
 function slugify(value) {
@@ -684,12 +465,14 @@ function initProductModal() {
     if (!product || product.stock === "NO") return;
 
     const quantity = quantities.get(product.id) || 1;
-    window.open(buildPaymentUrl(product, quantity), "_blank", "noopener,noreferrer");
+    addToCart(product, quantity);
+    quantities.set(product.id, 1);
+    closeProductModal();
   });
 
   document.getElementById("modal-product-consult")?.addEventListener("click", () => {
     const product = getActiveModalProduct();
-    if (!product) return;
+    if (!product || product.stock === "NO") return;
 
     const quantity = quantities.get(product.id) || 1;
     window.open(getProductWhatsappUrl(product, quantity), "_blank", "noopener,noreferrer");
@@ -730,9 +513,21 @@ function openProductModal(product) {
   document.getElementById("modal-product-price").textContent = formatPrice(product.precio);
   updateModalQuantity(quantity);
 
+  const isOutOfStock = product.stock === "NO";
+
   if (buyButton) {
-    buyButton.disabled = product.stock === "NO";
-    buyButton.textContent = product.stock === "NO" ? "Sin stock" : "Comprar";
+    buyButton.disabled = isOutOfStock;
+    buyButton.textContent = isOutOfStock ? "Sin stock" : "Agregar al pedido";
+  }
+
+  const consultButton = document.getElementById("modal-product-consult");
+  if (consultButton) {
+    consultButton.disabled = isOutOfStock;
+  }
+
+  const qtyWrap = document.querySelector(".product-modal__quantity");
+  if (qtyWrap) {
+    qtyWrap.style.display = isOutOfStock ? "none" : "";
   }
 
   modal.classList.add("is-open");
@@ -889,17 +684,7 @@ function getCarouselMetrics(track) {
 }
 
 function buildPaymentUrl(product, quantity) {
-  const baseUrl = product.linkMercadoPago || product.linkQR;
-  if (!baseUrl) return getProductBuyWhatsappUrl(product, quantity);
-
-  try {
-    const url = new URL(baseUrl);
-    url.searchParams.set("cantidad", String(quantity));
-    url.searchParams.set("producto", product.id);
-    return url.toString();
-  } catch {
-    return baseUrl;
-  }
+  return getProductBuyWhatsappUrl(product, quantity);
 }
 
 function getProductWhatsappUrl(product, quantity) {
@@ -962,4 +747,252 @@ function initReveal() {
   }, { threshold: .14 });
 
   sections.forEach(section => observer.observe(section));
+}
+
+// ── Carrito ──────────────────────────────────────────────────────────────────
+
+function getCart() {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCart(cart) {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  } catch (error) {
+    console.warn("No se pudo guardar el carrito.", error);
+  }
+}
+
+function addToCart(product, quantity) {
+  const cart = getCart();
+  const existing = cart.find(item => item.id === product.id);
+  if (existing) {
+    existing.cantidad += quantity;
+    existing.nombre = product.nombre;
+    existing.aroma = product.aroma;
+    existing.precio = product.precio;
+    existing.imagenUrl = product.imagen;
+  } else {
+    cart.push({
+      id: product.id,
+      nombre: product.nombre,
+      aroma: product.aroma,
+      precio: product.precio,
+      imagenUrl: product.imagen,
+      cantidad: quantity,
+    });
+  }
+  saveCart(cart);
+  updateCartCounter();
+  renderCart();
+}
+
+function removeFromCart(productId) {
+  saveCart(getCart().filter(item => item.id !== productId));
+  updateCartCounter();
+  renderCart();
+}
+
+function increaseCartItem(productId) {
+  const cart = getCart();
+  const item = cart.find(i => i.id === productId);
+  if (item) item.cantidad += 1;
+  saveCart(cart);
+  updateCartCounter();
+  renderCart();
+}
+
+function decreaseCartItem(productId) {
+  const cart = getCart();
+  const item = cart.find(i => i.id === productId);
+  if (!item) return;
+  if (item.cantidad <= 1) {
+    removeFromCart(productId);
+    return;
+  }
+  item.cantidad -= 1;
+  saveCart(cart);
+  updateCartCounter();
+  renderCart();
+}
+
+function clearCart() {
+  saveCart([]);
+  updateCartCounter();
+  renderCart();
+}
+
+function calculateCartTotal() {
+  return getCart().reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+}
+
+function updateCartCounter() {
+  const total = getCart().reduce((sum, item) => sum + item.cantidad, 0);
+  [
+    document.getElementById("cart-counter"),
+    document.getElementById("cart-floating-counter"),
+  ].forEach(el => {
+    if (!el) return;
+    el.textContent = String(total);
+    el.hidden = total === 0;
+  });
+}
+
+function openCart() {
+  const drawer = document.getElementById("cart-drawer");
+  const overlay = document.getElementById("cart-overlay");
+  if (!drawer) return;
+  renderCart();
+  drawer.classList.add("is-open");
+  drawer.setAttribute("aria-hidden", "false");
+  overlay?.classList.add("is-visible");
+  document.body.classList.add("cart-open");
+  drawer.querySelector(".cart-close")?.focus();
+}
+
+function closeCart() {
+  const drawer = document.getElementById("cart-drawer");
+  const overlay = document.getElementById("cart-overlay");
+  if (!drawer) return;
+  drawer.classList.remove("is-open");
+  drawer.setAttribute("aria-hidden", "true");
+  overlay?.classList.remove("is-visible");
+  document.body.classList.remove("cart-open");
+}
+
+function renderCart() {
+  const itemsEl = document.getElementById("cart-items");
+  const totalEl = document.getElementById("cart-total-value");
+  const checkoutBtn = document.getElementById("cart-checkout");
+  const clearBtn = document.getElementById("cart-clear");
+  if (!itemsEl) return;
+
+  const cart = getCart();
+
+  if (!cart.length) {
+    itemsEl.innerHTML = `
+      <div class="cart-empty">
+        <p class="cart-empty__title">Tu pedido está vacío</p>
+        <p class="cart-empty__text">Agregá tus velas favoritas para armar tu pedido.</p>
+      </div>
+    `;
+    if (totalEl) totalEl.textContent = formatPrice(0);
+    if (checkoutBtn) checkoutBtn.disabled = true;
+    if (clearBtn) clearBtn.hidden = true;
+    return;
+  }
+
+  itemsEl.innerHTML = cart.map(item => `
+    <div class="cart-item" data-item-id="${item.id}">
+      <div class="cart-item__image${item.imagenUrl ? "" : " cart-item__image--placeholder"}"
+           ${item.imagenUrl ? `style="background-image:url('${item.imagenUrl}')"` : ""}></div>
+      <div class="cart-item__info">
+        <p class="cart-item__name">${item.nombre}</p>
+        ${item.aroma && item.aroma !== "Sin aroma" ? `<p class="cart-item__aroma">${item.aroma}</p>` : ""}
+        <p class="cart-item__price">${formatPrice(item.precio)}</p>
+      </div>
+      <div class="cart-item__controls">
+        <div class="quantity-control">
+          <button class="qty-btn" type="button" data-cart-decrease="${item.id}" aria-label="Disminuir cantidad de ${item.nombre}">−</button>
+          <span class="quantity-value">${item.cantidad}</span>
+          <button class="qty-btn" type="button" data-cart-increase="${item.id}" aria-label="Aumentar cantidad de ${item.nombre}">+</button>
+        </div>
+        <div class="cart-item__bottom">
+          <p class="cart-item__subtotal">${formatPrice(item.precio * item.cantidad)}</p>
+          <button class="cart-item__remove" type="button" data-cart-remove="${item.id}" aria-label="Eliminar ${item.nombre}">&times;</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  if (totalEl) totalEl.textContent = formatPrice(calculateCartTotal());
+  if (checkoutBtn) checkoutBtn.disabled = false;
+  if (clearBtn) clearBtn.hidden = false;
+
+  itemsEl.querySelectorAll("[data-cart-increase]").forEach(btn => {
+    btn.addEventListener("click", () => increaseCartItem(btn.dataset.cartIncrease));
+  });
+  itemsEl.querySelectorAll("[data-cart-decrease]").forEach(btn => {
+    btn.addEventListener("click", () => decreaseCartItem(btn.dataset.cartDecrease));
+  });
+  itemsEl.querySelectorAll("[data-cart-remove]").forEach(btn => {
+    btn.addEventListener("click", () => removeFromCart(btn.dataset.cartRemove));
+  });
+}
+
+function syncCartWithProducts(activeProducts) {
+  const cart = getCart();
+  if (!cart.length) return;
+
+  const synced = cart
+    .filter(item => {
+      const product = activeProducts.find(p => p.id === item.id);
+      return product && product.activo !== false && product.stock === "SI";
+    })
+    .map(item => {
+      const product = activeProducts.find(p => p.id === item.id);
+      return {
+        ...item,
+        nombre: product.nombre,
+        aroma: product.aroma,
+        precio: product.precio,
+        imagenUrl: product.imagen,
+      };
+    });
+
+  saveCart(synced);
+  updateCartCounter();
+  if (document.getElementById("cart-drawer")?.classList.contains("is-open")) {
+    renderCart();
+  }
+}
+
+function showAddFeedback(card) {
+  const btn = card.querySelector("[data-add-to-cart]");
+  if (!btn || btn.classList.contains("btn--added")) return;
+  const original = btn.textContent;
+  btn.textContent = "¡Listo!";
+  btn.classList.add("btn--added");
+  btn.disabled = true;
+  window.setTimeout(() => {
+    btn.textContent = original;
+    btn.classList.remove("btn--added");
+    btn.disabled = false;
+  }, 1100);
+}
+
+function initCart() {
+  document.getElementById("cart-button")?.addEventListener("click", openCart);
+  document.getElementById("cart-floating")?.addEventListener("click", openCart);
+  document.getElementById("cart-close")?.addEventListener("click", closeCart);
+  document.getElementById("cart-overlay")?.addEventListener("click", closeCart);
+
+  document.getElementById("cart-clear")?.addEventListener("click", () => {
+    if (getCart().length) clearCart();
+  });
+
+  document.getElementById("cart-checkout")?.addEventListener("click", () => {
+    // Placeholder — el envío por WhatsApp se implementa en el próximo paso.
+    const statusEl = document.getElementById("cart-checkout-status");
+    if (statusEl) {
+      statusEl.textContent = "El envío por WhatsApp se implementará en el próximo paso.";
+      window.setTimeout(() => { statusEl.textContent = ""; }, 3000);
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && document.getElementById("cart-drawer")?.classList.contains("is-open")) {
+      closeCart();
+    }
+  });
+
+  updateCartCounter();
+  renderCart();
 }

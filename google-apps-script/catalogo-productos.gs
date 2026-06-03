@@ -7,6 +7,18 @@
  * 3. Pegar el ID de esa carpeta en IMAGE_FOLDER_ID.
  * 4. Publicar como Web App: Ejecutar como "Yo" y acceso "Cualquiera".
  * 5. Copiar la URL publica del deploy en PRODUCTS_API_URL del frontend.
+ *
+ * Columnas esperadas en la hoja "productos":
+ * id | activo | orden | categoria | nombre | descripcion | aroma | precio
+ * nombreImagen | whatsapp | stock | cantidadStock | destacado
+ *
+ * Logica de stock:
+ * - activo = NO  → el producto no se incluye en la respuesta.
+ * - stock = SI   → disponible para agregar al pedido.
+ * - stock = NO   → visible como referencia, sin posibilidad de agregar al carrito.
+ * - cantidadStock → campo interno del administrador, no se usa en el frontend.
+ *
+ * Venta: a demanda por WhatsApp. No se usan links de pago por producto.
  */
 
 // Cambiar si la hoja tiene otro nombre.
@@ -66,12 +78,9 @@ function buildProductsResponse() {
     .map(row => rowToRawProduct(row, headers))
     .filter(producto => normalizeYesNo(producto.activo) === "SI");
 
-  // Solo se consulta Drive por nombre cuando la fila no trae imagenId ni imagenUrl.
-  // Para maxima velocidad, agregar la columna imagenId en la planilla.
+  // Se consulta Drive cuando al menos un producto tiene nombreImagen definido.
   const shouldReadDriveFolder = rawProducts.some(producto =>
     String(producto.nombreImagen || "").trim()
-    && !String(producto.imagenId || "").trim()
-    && !String(producto.imagenUrl || "").trim()
   );
   const imageMap = shouldReadDriveFolder ? getImageMap() : {};
 
@@ -108,15 +117,8 @@ function rowToRawProduct(row, headers) {
 }
 
 function normalizeProduct(item, imageMap) {
-  const imagenId = String(item.imagenId || "").trim();
-  const providedImagenUrl = String(item.imagenUrl || "").trim();
   const nombreImagen = String(item.nombreImagen || "").trim();
-
-  // Fallback de imagen:
-  // 1. imagenId: evita buscar en Drive y arma una miniatura estable.
-  // 2. imagenUrl: permite pegar una URL externa o propia.
-  // 3. nombreImagen: busca el archivo en la carpeta de Drive solo si hace falta.
-  const imagenUrl = buildImageUrl(imagenId, providedImagenUrl, nombreImagen, imageMap);
+  const imagenUrl = nombreImagen && imageMap[nombreImagen] ? imageMap[nombreImagen] : "";
 
   return {
     id: String(item.id || "").trim(),
@@ -127,32 +129,16 @@ function normalizeProduct(item, imageMap) {
     descripcion: String(item.descripcion || "").trim(),
     aroma: String(item.aroma || "").trim(),
     precio: Number(item.precio) || 0,
-    imagenId,
     nombreImagen,
     imagenUrl,
-    linkMercadoPago: String(item.linkMercadoPago || "").trim(),
-    linkQR: String(item.linkQR || "").trim(),
     whatsapp: String(item.whatsapp || DEFAULT_WHATSAPP_NUMBER).trim(),
     stock: normalizeYesNo(item.stock),
+    // cantidadStock es campo interno: se pasa al JSON pero el frontend no lo muestra.
+    cantidadStock: String(item.cantidadStock || "").trim(),
     destacado: normalizeYesNo(item.destacado),
   };
 }
 
-function buildImageUrl(imagenId, imagenUrl, nombreImagen, imageMap) {
-  if (imagenId) {
-    return `https://drive.google.com/thumbnail?id=${imagenId}&sz=w800`;
-  }
-
-  if (imagenUrl) {
-    return imagenUrl;
-  }
-
-  if (nombreImagen && imageMap[nombreImagen]) {
-    return imageMap[nombreImagen];
-  }
-
-  return "";
-}
 
 function getImageMap() {
   if (!IMAGE_FOLDER_ID || IMAGE_FOLDER_ID.includes("PEGAR_ID")) return {};
