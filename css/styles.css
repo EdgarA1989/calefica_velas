@@ -114,69 +114,183 @@ img {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: .7rem;
   flex: 0 0 auto;
   min-width: 0;
   color: var(--text);
-  font-family: var(--serif);
-  font-size: 1.45rem;
-  font-weight: 700;
-  letter-spacing: .02em;
 }
 
 .brand:hover {
   color: var(--text);
 }
 
+/* ── Brand logo — horizontal (navbar) ── */
+
 .brand-logo {
-  position: relative;
-  width: 96px;
-  height: 90px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .7rem;
   flex: 0 0 auto;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
 }
 
-.brand-logo img {
-  position: static;
-  width: 90px;
-  height: 90px;
-  max-width: 100%;
+.brand-logo__icon {
+  display: block;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
-  transform: none;
-  filter: drop-shadow(0 3px 8px rgba(112, 76, 42, .22));
-  mix-blend-mode: multiply;
+  flex: 0 0 72px;
 }
 
-body.dark .brand-logo img {
-  mix-blend-mode: normal;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .4));
+.brand-logo__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  min-width: 0;
 }
 
-body.dark .brand-logo {
-  padding: 5px;
-  border-radius: 10px;
-  background: rgba(255, 250, 246, .92) !important;
+/* ── Nombre principal ── */
+.brand-logo__name {
+  margin: 0;
+  padding: 0;
+  font-family: var(--serif);
+  font-size: 1.42rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  line-height: 1;
+  background: linear-gradient(160deg, #c9974a 0%, #8a6020 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+body.dark .brand-logo__name {
+  background: linear-gradient(160deg, #d8ae5a 0%, #b08840 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ── Separador ── ◆ ── */
+.brand-logo__divider {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: 3px 0 2px;
+}
+
+.brand-logo__divider span {
+  flex: 1;
+  height: 1px;
+}
+
+.brand-logo__divider span:first-child {
+  background: linear-gradient(90deg, transparent, #b98a28);
+}
+
+.brand-logo__divider span:last-child {
+  background: linear-gradient(90deg, #b98a28, transparent);
+}
+
+.brand-logo__divider i {
+  display: block;
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  background: #b98a28;
+  transform: rotate(45deg);
+  font-style: normal;
+}
+
+body.dark .brand-logo__divider span:first-child {
+  background: linear-gradient(90deg, transparent, #d4aa4e);
+}
+
+body.dark .brand-logo__divider span:last-child {
+  background: linear-gradient(90deg, #d4aa4e, transparent);
+}
+
+body.dark .brand-logo__divider i {
+  background: #d4aa4e;
+}
+
+/* ── VELAS DE SOJA ── */
+.brand-logo__subtitle {
+  margin: 0;
+  padding: 0;
+  color: #9a7640;
+  font-family: var(--sans);
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+body.dark .brand-logo__subtitle {
+  color: #c4a05a;
+}
+
+/* ── Naturalmente simple ── */
+.brand-logo__tagline {
+  margin: 2px 0 0;
+  padding: 0;
+  color: #7a6040;
+  font-family: var(--serif);
+  font-size: .64rem;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: .03em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+body.dark .brand-logo__tagline {
+  color: #b09060;
+}
+
+/* ── Footer: vertical, imagen arriba, texto abajo, centrado ── */
 .brand-logo--footer {
-  width: 190px;
-  height: 190px;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
 }
 
-.brand-logo--footer img {
-  width: 190px;
-  height: 190px;
+.brand-logo--footer .brand-logo__icon {
+  width: 140px;
+  height: 140px;
+  flex: 0 0 140px;
 }
 
-body.dark .brand-logo--footer {
-  padding: 8px;
-  border-radius: 14px;
+.brand-logo--footer .brand-logo__text {
+  align-items: center;
+  text-align: center;
+}
+
+.brand-logo--footer .brand-logo__name {
+  font-size: 2rem;
+  letter-spacing: .06em;
+}
+
+.brand-logo--footer .brand-logo__divider {
+  margin: 5px 0 4px;
+  width: 100%;
+}
+
+.brand-logo--footer .brand-logo__divider i {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+}
+
+.brand-logo--footer .brand-logo__subtitle {
+  font-size: .75rem;
+  letter-spacing: .22em;
+}
+
+.brand-logo--footer .brand-logo__tagline {
+  font-size: .8rem;
+  margin-top: 3px;
 }
 
 .nav-panel {
@@ -1789,13 +1903,26 @@ body.dark .footer a:hover {
   }
 
   .brand-logo {
-    width: 80px;
-    height: 76px;
+    gap: .5rem;
   }
 
-  .brand-logo img {
-    width: 72px;
-    height: 72px;
+  .brand-logo__icon {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+  }
+
+  .brand-logo__name {
+    font-size: 1.18rem;
+  }
+
+  .brand-logo__subtitle {
+    font-size: .52rem;
+    letter-spacing: .16em;
+  }
+
+  .brand-logo__tagline {
+    font-size: .54rem;
   }
 
   .menu-toggle {
