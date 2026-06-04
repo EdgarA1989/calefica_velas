@@ -249,48 +249,11 @@ body.dark .brand-logo__tagline {
   color: #b09060;
 }
 
-/* ── Footer: vertical, imagen arriba, texto abajo, centrado ── */
+/* ── Footer: horizontal, igual que navbar ── */
 .brand-logo--footer {
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: .4rem;
-}
-
-.brand-logo--footer .brand-logo__icon {
-  width: 140px;
-  height: 140px;
-  flex: 0 0 140px;
-}
-
-.brand-logo--footer .brand-logo__text {
-  align-items: center;
-  text-align: center;
-}
-
-.brand-logo--footer .brand-logo__name {
-  font-size: 2rem;
-  letter-spacing: .06em;
-}
-
-.brand-logo--footer .brand-logo__divider {
-  margin: 5px 0 4px;
-  width: 100%;
-}
-
-.brand-logo--footer .brand-logo__divider i {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 7px;
-}
-
-.brand-logo--footer .brand-logo__subtitle {
-  font-size: .75rem;
-  letter-spacing: .22em;
-}
-
-.brand-logo--footer .brand-logo__tagline {
-  font-size: .8rem;
-  margin-top: 3px;
+  gap: 1rem;
 }
 
 .nav-panel {
@@ -1897,7 +1860,7 @@ body.dark .footer a:hover {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 978px) {
   .navbar {
     height: 90px;
   }
@@ -1933,6 +1896,7 @@ body.dark .footer a:hover {
   .nav-panel {
     position: fixed;
     inset: 82px 1rem auto;
+    z-index: 60;
     display: grid;
     gap: .35rem;
     padding: .8rem;
@@ -1975,7 +1939,9 @@ body.dark .footer a:hover {
   .theme-candles {
     transform: scale(.92);
   }
+}
 
+@media (max-width: 760px) {
   .hero-actions,
   .contact-actions {
     display: grid;
@@ -2219,7 +2185,7 @@ body.dark .footer a:hover {
   }
 }
 
-@media (min-width: 761px) {
+@media (min-width: 979px) {
   .theme-toggle {
     margin-left: .25rem;
   }

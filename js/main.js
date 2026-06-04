@@ -779,6 +779,7 @@ function addToCart(product, quantity) {
     existing.aroma = product.aroma;
     existing.precio = product.precio;
     existing.imagenUrl = product.imagen;
+    existing.whatsapp = product.whatsapp;
   } else {
     cart.push({
       id: product.id,
@@ -786,6 +787,7 @@ function addToCart(product, quantity) {
       aroma: product.aroma,
       precio: product.precio,
       imagenUrl: product.imagen,
+      whatsapp: product.whatsapp,
       cantidad: quantity,
     });
   }
@@ -944,6 +946,7 @@ function syncCartWithProducts(activeProducts) {
         aroma: product.aroma,
         precio: product.precio,
         imagenUrl: product.imagen,
+        whatsapp: product.whatsapp,
       };
     });
 
@@ -968,6 +971,53 @@ function showAddFeedback(card) {
   }, 1100);
 }
 
+function normalizeWhatsAppNumber(number) {
+  return String(number || "").replace(/[\s\-+]/g, "");
+}
+
+function getCartWhatsAppNumber(cart) {
+  const number = cart.find(item => item.whatsapp)?.whatsapp || DEFAULT_WHATSAPP_NUMBER;
+  return normalizeWhatsAppNumber(number);
+}
+
+function buildWhatsAppOrderMessage(cart) {
+  const lines = ["Hola, quiero hacer un pedido en Calefica:\n"];
+
+  for (const item of cart) {
+    const precio = Number(item.precio);
+    const precioValido = Number.isFinite(precio) && precio > 0;
+    const precioTexto = precioValido ? formatPrice(precio) : "A consultar";
+    const subtotalTexto = precioValido ? formatPrice(precio * item.cantidad) : "A consultar";
+
+    lines.push(`• ${item.cantidad} x ${item.nombre}`);
+    if (item.aroma && item.aroma !== "Sin aroma") {
+      lines.push(`  Aroma/variante: ${item.aroma}`);
+    }
+    lines.push(`  Precio unitario: ${precioTexto}`);
+    lines.push(`  Subtotal: ${subtotalTexto}\n`);
+  }
+
+  lines.push(`Total estimado: ${formatPrice(calculateCartTotal())}`);
+  lines.push("\nQuedo a la espera para confirmar disponibilidad, forma de pago y entrega.");
+
+  return lines.join("\n");
+}
+
+function openWhatsAppOrder() {
+  const cart = getCart();
+  if (!cart.length) return;
+
+  const message = buildWhatsAppOrderMessage(cart);
+  const phone = getCartWhatsAppNumber(cart);
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+
+  const statusEl = document.getElementById("cart-checkout-status");
+  if (statusEl) {
+    statusEl.textContent = "Pedido preparado en WhatsApp.";
+    window.setTimeout(() => { statusEl.textContent = ""; }, 3500);
+  }
+}
+
 function initCart() {
   document.getElementById("cart-button")?.addEventListener("click", openCart);
   document.getElementById("cart-floating")?.addEventListener("click", openCart);
@@ -978,14 +1028,7 @@ function initCart() {
     if (getCart().length) clearCart();
   });
 
-  document.getElementById("cart-checkout")?.addEventListener("click", () => {
-    // Placeholder — el envío por WhatsApp se implementa en el próximo paso.
-    const statusEl = document.getElementById("cart-checkout-status");
-    if (statusEl) {
-      statusEl.textContent = "El envío por WhatsApp se implementará en el próximo paso.";
-      window.setTimeout(() => { statusEl.textContent = ""; }, 3000);
-    }
-  });
+  document.getElementById("cart-checkout")?.addEventListener("click", openWhatsAppOrder);
 
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && document.getElementById("cart-drawer")?.classList.contains("is-open")) {
