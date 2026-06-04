@@ -256,18 +256,25 @@ body.dark .brand-logo__tagline {
   gap: 1rem;
 }
 
-.footer .brand-logo__name,
-.footer .brand-logo__subtitle,
-.footer .brand-logo__tagline {
+.footer .brand-logo__name {
+  font-size: 2.6rem;
+  line-height: 1;
   margin-bottom: 0;
 }
 
 .footer .brand-logo__subtitle {
+  font-size: .82rem;
+  letter-spacing: .26em;
+  line-height: 1;
   color: #9a7640;
+  margin-bottom: 0;
 }
 
 .footer .brand-logo__tagline {
+  font-size: .93rem;
+  line-height: 1;
   color: #7a6040;
+  margin-bottom: 0;
 }
 
 body.dark .footer .brand-logo__subtitle {
@@ -1897,16 +1904,19 @@ body.dark .footer a:hover {
     flex: 0 0 68px;
   }
 
-  .brand-logo__name {
+  .brand-logo__name,
+  .footer .brand-logo__name {
     font-size: 1.7rem;
   }
 
-  .brand-logo__subtitle {
+  .brand-logo__subtitle,
+  .footer .brand-logo__subtitle {
     font-size: .62rem;
     letter-spacing: .18em;
   }
 
-  .brand-logo__tagline {
+  .brand-logo__tagline,
+  .footer .brand-logo__tagline {
     font-size: .90rem;
   }
 
