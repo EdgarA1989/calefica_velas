@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCatalog();
   initCarouselControls();
   initMobileCatalogControls();
+  initTrackDrag();
   initProductModal();
   initContactForm();
   initReveal();
@@ -579,6 +580,99 @@ function initMobileCatalogControls() {
   document.getElementById("mobile-catalog-prev")?.addEventListener("click", () => moveMobileCatalogPage(-1));
   document.getElementById("mobile-catalog-next")?.addEventListener("click", () => moveMobileCatalogPage(1));
   window.addEventListener("resize", updateMobileCatalogPager);
+}
+
+function initTrackDrag() {
+  const track = document.getElementById("products-track");
+  if (!track) return;
+
+  // ── Desktop: arrastre con mouse ──────────────────────────────────────
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragScrollLeft = 0;
+  let hasMoved = false;
+
+  track.addEventListener("mousedown", (e) => {
+    if (window.matchMedia("(max-width: 760px)").matches) return;
+    isDragging = true;
+    hasMoved = false;
+    dragStartX = e.pageX - track.offsetLeft;
+    dragScrollLeft = track.scrollLeft;
+    track.classList.add("is-dragging");
+    track.style.scrollSnapType = "none";
+  });
+
+  track.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const walk = (e.pageX - track.offsetLeft) - dragStartX;
+    if (Math.abs(walk) > 5) hasMoved = true;
+    track.scrollLeft = dragScrollLeft - walk * 1.5;
+  });
+
+  const endDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    track.classList.remove("is-dragging");
+    track.style.scrollSnapType = "";
+  };
+
+  track.addEventListener("mouseup", endDrag);
+  track.addEventListener("mouseleave", endDrag);
+
+  // Evita abrir el modal si el usuario solo estaba arrastrando
+  track.addEventListener("click", (e) => {
+    if (hasMoved) { e.stopPropagation(); hasMoved = false; }
+  }, true);
+
+  // Sincroniza currentSlide y dots tras cualquier scroll (arrastre o flechas)
+  let syncTimer = null;
+  track.addEventListener("scroll", () => {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      const cards = [...track.querySelectorAll(".product-card:not(.product-card--skeleton)")];
+      if (!cards.length) return;
+      let closest = 0;
+      let minDist = Infinity;
+      cards.forEach((card, index) => {
+        const dist = Math.abs(card.offsetLeft - track.offsetLeft - track.scrollLeft);
+        if (dist < minDist) { minDist = dist; closest = index; }
+      });
+      currentSlide = closest;
+      updateDots();
+    }, 80);
+  }, { passive: true });
+
+  // ── Mobile: swipe vertical ────────────────────────────────────────────
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let isVerticalSwipe = null;
+
+  track.addEventListener("touchstart", (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+    isVerticalSwipe = null;
+  }, { passive: true });
+
+  // passive: false para poder cancelar el scroll de página en swipe vertical
+  track.addEventListener("touchmove", (e) => {
+    if (!window.matchMedia("(max-width: 760px)").matches) return;
+    if (isVerticalSwipe === null) {
+      const dy = Math.abs(e.touches[0].clientY - touchStartY);
+      const dx = Math.abs(e.touches[0].clientX - touchStartX);
+      if (dy > 8 || dx > 8) isVerticalSwipe = dy > dx;
+    }
+    if (isVerticalSwipe) e.preventDefault();
+  }, { passive: false });
+
+  track.addEventListener("touchend", (e) => {
+    if (!window.matchMedia("(max-width: 760px)").matches || !isVerticalSwipe) return;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dy) > 45) {
+      dy < 0 ? moveMobileCatalogPage(1) : moveMobileCatalogPage(-1);
+    }
+    isVerticalSwipe = null;
+  }, { passive: true });
 }
 
 function moveMobileCatalogPage(direction) {

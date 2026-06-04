@@ -2804,4 +2804,13 @@ body.dark .cart-total strong {
   .cart-floating {
     display: none;
   }
+
+  .products-track {
+    cursor: grab;
+  }
+
+  .products-track.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
 }
