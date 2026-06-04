@@ -102,7 +102,7 @@ img {
 
 .navbar {
   width: min(1120px, calc(100% - 2rem));
-  height: 100px;
+  height: 114px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -114,7 +114,7 @@ img {
 .brand {
   display: inline-flex;
   align-items: center;
-  flex: 0 0 auto;
+  flex: 1;
   min-width: 0;
   color: var(--text);
 }
@@ -129,16 +129,16 @@ img {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: .7rem;
+  gap: 1rem;
   flex: 0 0 auto;
 }
 
 .brand-logo__icon {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 94px;
+  height: 94px;
   object-fit: contain;
-  flex: 0 0 72px;
+  flex: 0 0 94px;
 }
 
 .brand-logo__text {
@@ -154,9 +154,9 @@ img {
   margin: 0;
   padding: 0;
   font-family: var(--serif);
-  font-size: 1.42rem;
+  font-size: 2.6rem;
   font-weight: 700;
-  letter-spacing: .05em;
+  letter-spacing: .06em;
   line-height: 1;
   background: linear-gradient(160deg, #c9974a 0%, #8a6020 100%);
   -webkit-background-clip: text;
@@ -174,9 +174,9 @@ body.dark .brand-logo__name {
 .brand-logo__divider {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   width: 100%;
-  margin: 3px 0 2px;
+  margin: 5px 0 4px;
 }
 
 .brand-logo__divider span {
@@ -220,9 +220,9 @@ body.dark .brand-logo__divider i {
   padding: 0;
   color: #9a7640;
   font-family: var(--sans);
-  font-size: .6rem;
+  font-size: .82rem;
   font-weight: 600;
-  letter-spacing: .2em;
+  letter-spacing: .26em;
   text-transform: uppercase;
   line-height: 1;
 }
@@ -233,14 +233,14 @@ body.dark .brand-logo__subtitle {
 
 /* ── Naturalmente simple ── */
 .brand-logo__tagline {
-  margin: 2px 0 0;
+  margin: 3px 0 0;
   padding: 0;
   color: #7a6040;
   font-family: var(--serif);
-  font-size: .64rem;
+  font-size: .88rem;
   font-weight: 500;
   font-style: italic;
-  letter-spacing: .03em;
+  letter-spacing: .04em;
   line-height: 1;
   white-space: nowrap;
 }
@@ -1899,30 +1899,30 @@ body.dark .footer a:hover {
 
 @media (max-width: 760px) {
   .navbar {
-    height: 84px;
+    height: 90px;
   }
 
   .brand-logo {
-    gap: .5rem;
+    gap: .6rem;
   }
 
   .brand-logo__icon {
-    width: 58px;
-    height: 58px;
-    flex: 0 0 58px;
+    width: 68px;
+    height: 68px;
+    flex: 0 0 68px;
   }
 
   .brand-logo__name {
-    font-size: 1.18rem;
+    font-size: 1.7rem;
   }
 
   .brand-logo__subtitle {
-    font-size: .52rem;
-    letter-spacing: .16em;
+    font-size: .62rem;
+    letter-spacing: .18em;
   }
 
   .brand-logo__tagline {
-    font-size: .54rem;
+    font-size: .66rem;
   }
 
   .menu-toggle {
@@ -1932,7 +1932,7 @@ body.dark .footer a:hover {
 
   .nav-panel {
     position: fixed;
-    inset: 76px 1rem auto;
+    inset: 82px 1rem auto;
     display: grid;
     gap: .35rem;
     padding: .8rem;
