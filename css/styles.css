@@ -256,6 +256,28 @@ body.dark .brand-logo__tagline {
   gap: 1rem;
 }
 
+.footer .brand-logo__name,
+.footer .brand-logo__subtitle,
+.footer .brand-logo__tagline {
+  margin-bottom: 0;
+}
+
+.footer .brand-logo__subtitle {
+  color: #9a7640;
+}
+
+.footer .brand-logo__tagline {
+  color: #7a6040;
+}
+
+body.dark .footer .brand-logo__subtitle {
+  color: #c4a05a;
+}
+
+body.dark .footer .brand-logo__tagline {
+  color: #b09060;
+}
+
 .nav-panel {
   display: flex;
   align-items: center;
