@@ -237,10 +237,10 @@ body.dark .brand-logo__subtitle {
   padding: 0;
   color: #7a6040;
   font-family: var(--serif);
-  font-size: .88rem;
+  font-size: .93rem;
   font-weight: 500;
   font-style: italic;
-  letter-spacing: .04em;
+  letter-spacing: 0;
   line-height: 1;
   white-space: nowrap;
 }
@@ -1922,7 +1922,7 @@ body.dark .footer a:hover {
   }
 
   .brand-logo__tagline {
-    font-size: .66rem;
+    font-size: .90rem;
   }
 
   .menu-toggle {
