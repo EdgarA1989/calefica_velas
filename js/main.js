@@ -643,36 +643,6 @@ function initTrackDrag() {
     }, 80);
   }, { passive: true });
 
-  // ── Mobile: swipe vertical ────────────────────────────────────────────
-  let touchStartY = 0;
-  let touchStartX = 0;
-  let isVerticalSwipe = null;
-
-  track.addEventListener("touchstart", (e) => {
-    touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
-    isVerticalSwipe = null;
-  }, { passive: true });
-
-  // passive: false para poder cancelar el scroll de página en swipe vertical
-  track.addEventListener("touchmove", (e) => {
-    if (!window.matchMedia("(max-width: 760px)").matches) return;
-    if (isVerticalSwipe === null) {
-      const dy = Math.abs(e.touches[0].clientY - touchStartY);
-      const dx = Math.abs(e.touches[0].clientX - touchStartX);
-      if (dy > 8 || dx > 8) isVerticalSwipe = dy > dx;
-    }
-    if (isVerticalSwipe) e.preventDefault();
-  }, { passive: false });
-
-  track.addEventListener("touchend", (e) => {
-    if (!window.matchMedia("(max-width: 760px)").matches || !isVerticalSwipe) return;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dy) > 45) {
-      dy < 0 ? moveMobileCatalogPage(1) : moveMobileCatalogPage(-1);
-    }
-    isVerticalSwipe = null;
-  }, { passive: true });
 }
 
 function moveMobileCatalogPage(direction) {
