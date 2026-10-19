@@ -13,7 +13,6 @@ const CATALOG_STORAGE_KEY = "calefica_productos_v3";
 const CART_STORAGE_KEY = "calefica_cart_v1";
 
 const LEGACY_CATEGORY_LABELS = {
-  clasicas: "Velas clasicas",
   aromaticas: "Velas aromaticas",
   decorativas: "Velas decorativas",
   combos: "Combos / regalos",
@@ -27,18 +26,18 @@ let products = [
   { id: "vela-vainilla-calida",activo: "SI", orden: 2, categoria: "Velas aromáticas",  nombre: "Vela Vainilla Cálida", descripcion: "Aroma dulce y envolvente de vainilla, perfecta para acompañar momentos de descanso en casa.",                                              aroma: "Vainilla",        precio: 15000, imagen: IMG + "vela-vainilla-calida.jpg",whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
   { id: "vela-rosa-mosqueta",  activo: "SI", orden: 3, categoria: "Velas aromáticas",  nombre: "Vela Rosa Mosqueta",   descripcion: "Una fragancia delicada, floral y elegante para perfumar espacios con una sensación suave y femenina.",                                      aroma: "Rosa mosqueta",   precio:  9000, imagen: IMG + "vela-rosa-mosqueta.jpg",  whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
   { id: "vela-coco-beige",     activo: "SI", orden: 4, categoria: "Velas aromáticas",  nombre: "Vela Coco Beige",      descripcion: "Vela artesanal con notas suaves de coco, pensada para ambientes frescos, cálidos y naturales.",                                            aroma: "Coco",            precio: 17500, imagen: IMG + "vela-coco-beige.jpg",     whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "NO" },
-  { id: "vela-nude-clasica",   activo: "SI", orden: 5, categoria: "Velas clásicas",    nombre: "Vela Nude Clásica",    descripcion: "Diseño simple, natural y elegante. Ideal para decorar mesas, rincones o regalar.",                                                          aroma: "Sin aroma",       precio:  7000, imagen: IMG + "vela-nude-clasica.jpg",   whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "NO" },
   { id: "vela-deco-flores",    activo: "SI", orden: 6, categoria: "Velas decorativas", nombre: "Vela Deco Flores",     descripcion: "Vela de soja decorativa con detalles delicados, pensada para regalar o decorar espacios especiales.",                                       aroma: "Floral suave",    precio: 11000, imagen: IMG + "vela-deco-flores.jpg",    whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
   { id: "combo-relax",         activo: "SI", orden: 7, categoria: "Combos y regalos",  nombre: "Combo Relax",          descripcion: "Combo artesanal con vela aromática, detalles decorativos y presentación especial para regalar.",                                            aroma: "Lavanda + Vainilla", precio: 18000, imagen: IMG + "combo-relax.jpg",      whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "SI" },
   { id: "box-aromatico",       activo: "SI", orden: 8, categoria: "Combos y regalos",  nombre: "Box Aromático",        descripcion: "Box de regalo con selección de velas y aromas delicados. Ideal para cumpleaños, agradecimientos o fechas especiales.",                      aroma: "A elección",      precio: 22000, imagen: IMG + "box-aromatico.jpg",       whatsapp: DEFAULT_WHATSAPP_NUMBER, stock: "SI", cantidadStock: "", destacado: "NO" },
 ];
 
-let categories = [{ id: "todos", label: "Todos" }];
+let categories = [{ id: "todos", label: "Todos" }, { id: "souvenir", label: "Souvenir" }];
 let activeCategory = "todos";
 let currentSlide = 0;
 let mobileCatalogPage = 0;
 let quantities = new Map(products.map(product => [product.id, 1]));
 let activeModalProductId = null;
+let activeModalAromaId = "";
 let modalHistoryActive = false;
 let modalScrollY = 0;
 const MOBILE_CATALOG_PAGE_SIZE = 4;
@@ -223,6 +222,7 @@ function isProductsApiConfigured() {
 function refreshCatalogData(nextProducts) {
   products = nextProducts
     .filter(product => product.activo !== false)
+    .filter(product => !["clasicas", "velas-clasicas"].includes(slugify(product.categoria)))
     .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
   quantities = new Map(products.map(product => [product.id, quantities.get(product.id) || 1]));
   categories = buildCategories(products);
@@ -237,12 +237,16 @@ function buildCategories(productList) {
   const uniqueCategories = [...new Set(productList.map(product => product.categoria).filter(Boolean))];
   return [
     { id: "todos", label: "Todos" },
-    ...uniqueCategories.map(category => ({ id: slugify(category), label: category })),
+    { id: "souvenir", label: "Souvenir" },
+    ...uniqueCategories
+      .filter(category => slugify(category) !== "souvenir")
+      .map(category => ({ id: slugify(category), label: category })),
   ];
 }
 
 function normalizeProduct(product) {
   const rawCategory = LEGACY_CATEGORY_LABELS[product.categoria] || product.categoria || "Sin categoria";
+  const aromas = normalizeAromas(Array.isArray(product.aromas) ? product.aromas : product.aroma);
   const stock = normalizeYesNo(product.stock, "SI");
   const destacado = normalizeYesNo(product.destacado, "NO");
   return {
@@ -253,7 +257,8 @@ function normalizeProduct(product) {
     categoriaId: slugify(rawCategory),
     nombre: product.nombre || "Producto sin nombre",
     descripcion: product.descripcion || "Producto artesanal de Calefica.",
-    aroma: product.aroma || "A eleccion",
+    aroma: aromas.map(aroma => aroma.nombre).join(", "),
+    aromas,
     precio: Number(product.precio) || 0,
     nombreImagen: product.nombreImagen || "",
     imagen: product.imagenUrl || product.imagen || "",
@@ -359,7 +364,7 @@ function renderProductCard(product) {
       <div class="product-body">
         <h4>${product.nombre}</h4>
         <div class="product-meta">
-          <span>Aroma: <strong>${product.aroma}</strong></span>
+          ${product.aroma ? `<span>Aroma: <strong>${escapeHtml(product.aroma)}</strong></span>` : ""}
           <span class="price">${formatPrice(product.precio)}</span>
         </div>
         <div class="product-actions">
@@ -466,7 +471,7 @@ function initProductModal() {
     if (!product || product.stock === "NO") return;
 
     const quantity = quantities.get(product.id) || 1;
-    addToCart(product, quantity);
+    addToCart(product, quantity, getSelectedModalAroma());
     quantities.set(product.id, 1);
     closeProductModal();
   });
@@ -476,7 +481,7 @@ function initProductModal() {
     if (!product || product.stock === "NO") return;
 
     const quantity = quantities.get(product.id) || 1;
-    window.open(getProductWhatsappUrl(product, quantity), "_blank", "noopener,noreferrer");
+    window.open(getProductWhatsappUrl(product, quantity, getSelectedModalAroma()), "_blank", "noopener,noreferrer");
   });
 
   document.addEventListener("keydown", event => {
@@ -510,7 +515,7 @@ function openProductModal(product) {
 
   document.getElementById("modal-product-title").textContent = product.nombre;
   document.getElementById("modal-product-description").textContent = product.descripcion;
-  document.getElementById("modal-product-aroma").textContent = product.aroma;
+  renderModalAromas(product);
   document.getElementById("modal-product-price").textContent = formatPrice(product.precio);
   updateModalQuantity(quantity);
 
@@ -551,6 +556,7 @@ function closeProductModal({ fromHistory = false } = {}) {
   modal.setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
   activeModalProductId = null;
+  activeModalAromaId = "";
 
   if (modalScrollY) {
     window.scrollTo({ top: modalScrollY, behavior: "auto" });
@@ -564,6 +570,52 @@ function closeProductModal({ fromHistory = false } = {}) {
 
 function getActiveModalProduct() {
   return products.find(product => product.id === activeModalProductId);
+}
+
+function getDefaultAroma(product) {
+  return product?.aromas?.find(aroma => aroma.predeterminado) || product?.aromas?.[0] || null;
+}
+
+function getSelectedModalAroma() {
+  return getActiveModalProduct()?.aromas.find(aroma => aroma.id === activeModalAromaId) || null;
+}
+
+function renderModalAromas(product) {
+  const fieldset = document.getElementById("modal-product-aromas");
+  const options = document.getElementById("modal-aroma-options");
+  if (!fieldset || !options) return;
+  options.replaceChildren();
+  activeModalAromaId = getDefaultAroma(product)?.id || "";
+  fieldset.hidden = !product.aromas.length;
+  product.aromas.forEach(aroma => {
+    const label = document.createElement("label");
+    label.className = "aroma-option";
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "product-aroma";
+    input.value = aroma.id;
+    input.checked = aroma.id === activeModalAromaId;
+    input.addEventListener("change", () => {
+      if (input.checked) activeModalAromaId = aroma.id;
+    });
+    const swatch = document.createElement("span");
+    swatch.className = "aroma-option__swatch";
+    swatch.setAttribute("aria-hidden", "true");
+    if (aroma.color) swatch.style.setProperty("--aroma-color", aroma.color);
+    const check = document.createElement("span");
+    check.className = "aroma-option__check";
+    check.textContent = "✓";
+    swatch.append(check);
+    const name = document.createElement("span");
+    name.className = "aroma-option__name";
+    name.textContent = aroma.nombre;
+    label.append(input, swatch, name);
+    options.append(label);
+  });
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 }
 
 function updateModalQuantity(quantity) {
@@ -751,13 +803,13 @@ function buildPaymentUrl(product, quantity) {
   return getProductBuyWhatsappUrl(product, quantity);
 }
 
-function getProductWhatsappUrl(product, quantity) {
-  const message = `Hola, quiero consultar por ${quantity} unidad/es de ${product.nombre}. Precio publicado: ${formatPrice(product.precio)}.`;
+function getProductWhatsappUrl(product, quantity, aroma = getDefaultAroma(product)) {
+  const message = `Hola, quiero consultar por ${quantity} unidad/es de ${product.nombre}.${aroma ? ` Aroma: ${aroma.nombre}.` : ""} Precio publicado: ${formatPrice(product.precio)}.`;
   return getWhatsappUrl(message, product.whatsapp);
 }
 
-function getProductBuyWhatsappUrl(product, quantity) {
-  const message = `Hola, quiero comprar ${quantity} unidad/es de ${product.nombre}. Precio publicado: ${formatPrice(product.precio)}. ¿Esta disponible?`;
+function getProductBuyWhatsappUrl(product, quantity, aroma = getDefaultAroma(product)) {
+  const message = `Hola, quiero comprar ${quantity} unidad/es de ${product.nombre}.${aroma ? ` Aroma: ${aroma.nombre}.` : ""} Precio publicado: ${formatPrice(product.precio)}. ¿Esta disponible?`;
   return getWhatsappUrl(message, product.whatsapp);
 }
 
@@ -820,7 +872,10 @@ function getCart() {
     const raw = localStorage.getItem(CART_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map(item => {
+      const aromaId = item.aromaId ?? normalizeAromas(item.aroma)[0]?.id ?? "";
+      return { ...item, aromaId, cartKey: getCartItemKey(item.id, aromaId) };
+    }) : [];
   } catch {
     return [];
   }
@@ -834,21 +889,30 @@ function saveCart(cart) {
   }
 }
 
-function addToCart(product, quantity) {
+function getCartItemKey(productId, aromaId = "") {
+  return encodeURIComponent(JSON.stringify([String(productId), aromaId]));
+}
+
+function addToCart(product, quantity, aroma = getDefaultAroma(product)) {
+  if (product.stock === "NO" || (product.aromas.length && !product.aromas.some(item => item.id === aroma?.id))) return;
+  const aromaId = aroma?.id || "";
+  const cartKey = getCartItemKey(product.id, aromaId);
   const cart = getCart();
-  const existing = cart.find(item => item.id === product.id);
+  const existing = cart.find(item => item.cartKey === cartKey);
   if (existing) {
     existing.cantidad += quantity;
     existing.nombre = product.nombre;
-    existing.aroma = product.aroma;
+    existing.aroma = aroma?.nombre || "";
     existing.precio = product.precio;
     existing.imagenUrl = product.imagen;
     existing.whatsapp = product.whatsapp;
   } else {
     cart.push({
       id: product.id,
+      cartKey,
+      aromaId,
       nombre: product.nombre,
-      aroma: product.aroma,
+      aroma: aroma?.nombre || "",
       precio: product.precio,
       imagenUrl: product.imagen,
       whatsapp: product.whatsapp,
@@ -860,27 +924,27 @@ function addToCart(product, quantity) {
   renderCart();
 }
 
-function removeFromCart(productId) {
-  saveCart(getCart().filter(item => item.id !== productId));
+function removeFromCart(cartKey) {
+  saveCart(getCart().filter(item => item.cartKey !== cartKey));
   updateCartCounter();
   renderCart();
 }
 
-function increaseCartItem(productId) {
+function increaseCartItem(cartKey) {
   const cart = getCart();
-  const item = cart.find(i => i.id === productId);
+  const item = cart.find(i => i.cartKey === cartKey);
   if (item) item.cantidad += 1;
   saveCart(cart);
   updateCartCounter();
   renderCart();
 }
 
-function decreaseCartItem(productId) {
+function decreaseCartItem(cartKey) {
   const cart = getCart();
-  const item = cart.find(i => i.id === productId);
+  const item = cart.find(i => i.cartKey === cartKey);
   if (!item) return;
   if (item.cantidad <= 1) {
-    removeFromCart(productId);
+    removeFromCart(cartKey);
     return;
   }
   item.cantidad -= 1;
@@ -956,23 +1020,23 @@ function renderCart() {
   }
 
   itemsEl.innerHTML = cart.map(item => `
-    <div class="cart-item" data-item-id="${item.id}">
+    <div class="cart-item" data-item-id="${escapeHtml(item.cartKey)}">
       <div class="cart-item__image${item.imagenUrl ? "" : " cart-item__image--placeholder"}"
            ${item.imagenUrl ? `style="background-image:url('${item.imagenUrl}')"` : ""}></div>
       <div class="cart-item__info">
-        <p class="cart-item__name">${item.nombre}</p>
-        ${item.aroma && item.aroma !== "Sin aroma" ? `<p class="cart-item__aroma">${item.aroma}</p>` : ""}
+        <p class="cart-item__name">${escapeHtml(item.nombre)}</p>
+        ${item.aroma ? `<p class="cart-item__aroma">Aroma: ${escapeHtml(item.aroma)}</p>` : ""}
         <p class="cart-item__price">${formatPrice(item.precio)}</p>
       </div>
       <div class="cart-item__controls">
         <div class="quantity-control">
-          <button class="qty-btn" type="button" data-cart-decrease="${item.id}" aria-label="Disminuir cantidad de ${item.nombre}">−</button>
+          <button class="qty-btn" type="button" data-cart-decrease="${escapeHtml(item.cartKey)}" aria-label="Disminuir cantidad de ${escapeHtml(item.nombre)}">−</button>
           <span class="quantity-value">${item.cantidad}</span>
-          <button class="qty-btn" type="button" data-cart-increase="${item.id}" aria-label="Aumentar cantidad de ${item.nombre}">+</button>
+          <button class="qty-btn" type="button" data-cart-increase="${escapeHtml(item.cartKey)}" aria-label="Aumentar cantidad de ${escapeHtml(item.nombre)}">+</button>
         </div>
         <div class="cart-item__bottom">
           <p class="cart-item__subtotal">${formatPrice(item.precio * item.cantidad)}</p>
-          <button class="cart-item__remove" type="button" data-cart-remove="${item.id}" aria-label="Eliminar ${item.nombre}">&times;</button>
+          <button class="cart-item__remove" type="button" data-cart-remove="${escapeHtml(item.cartKey)}" aria-label="Eliminar ${escapeHtml(item.nombre)}">&times;</button>
         </div>
       </div>
     </div>
@@ -1000,14 +1064,15 @@ function syncCartWithProducts(activeProducts) {
   const synced = cart
     .filter(item => {
       const product = activeProducts.find(p => p.id === item.id);
-      return product && product.activo !== false && product.stock === "SI";
+      return product && product.activo !== false && product.stock === "SI"
+        && (item.aromaId ? product.aromas.some(aroma => aroma.id === item.aromaId) : !product.aromas.length);
     })
     .map(item => {
       const product = activeProducts.find(p => p.id === item.id);
       return {
         ...item,
         nombre: product.nombre,
-        aroma: product.aroma,
+        aroma: product.aromas.find(aroma => aroma.id === item.aromaId)?.nombre || "",
         precio: product.precio,
         imagenUrl: product.imagen,
         whatsapp: product.whatsapp,
@@ -1054,7 +1119,7 @@ function buildWhatsAppOrderMessage(cart) {
     const subtotalTexto = precioValido ? formatPrice(precio * item.cantidad) : "A consultar";
 
     lines.push(`• ${item.cantidad} x ${item.nombre}`);
-    if (item.aroma && item.aroma !== "Sin aroma") {
+    if (item.aroma) {
       lines.push(`  Aroma/variante: ${item.aroma}`);
     }
     lines.push(`  Precio unitario: ${precioTexto}`);

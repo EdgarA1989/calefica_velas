@@ -33,7 +33,7 @@ id | activo | orden | categoria | nombre | descripcion | aroma | precio | nombre
 | `categoria` | Agrupa los productos en el menú de categorías. |
 | `nombre` | Nombre visible del producto en la web. |
 | `descripcion` | Descripción visible del producto. |
-| `aroma` | Aroma o variante del producto. |
+| `aroma` | Aroma o variantes del producto. Acepta texto simple o el formato detallado explicado abajo. |
 | `precio` | Precio visible en la web. Escribir solo el número, sin `$` ni puntos. Ejemplo: `22000`. |
 | `nombreImagen` | Nombre exacto del archivo de imagen subido en la carpeta `02 - Imagenes productos`. Ejemplo: `vela-lavanda-soft.jpg`. |
 | `whatsapp` | Número que recibirá el pedido o consulta. Formato: `549XXXXXXXXXX` (código de país + código de área sin 0 + número sin 15). |
@@ -82,6 +82,69 @@ Poner `SI` en `destacado`.
 Editar el número en `orden`. El menor número aparece primero.
 
 ---
+
+## Aromas seleccionables por producto
+
+Para administrar los aromas con un **desplegable múltiple**, usar la hoja maestra
+`aromas` siguiendo la [guía del selector en la planilla](selector-aromas-planilla.md).
+El script actualizado admite ambas alternativas. La explicación que sigue corresponde
+al formato directo anterior, que continúa siendo compatible.
+
+Se reutiliza la columna **`aroma`** de la hoja `productos`; no hay que crear columnas
+ni hojas adicionales. Cada fila contiene únicamente los aromas asociados a ese producto.
+Los precios siguen siendo los del producto: este cambio no agrega precios por aroma.
+
+Un valor actual como `Lavanda` sigue funcionando como una única opción, sin inventar
+un color representativo (se muestra un círculo neutro). Una celda vacía oculta el selector.
+Un texto como `Lavanda + Vainilla` sigue siendo una sola variante combinada.
+
+Para ofrecer varias opciones con colores, usar este formato en **la misma celda**:
+
+```text
+Nombre|#HEXCOLOR|activo|orden|predeterminado|id
+```
+
+Separar cada opción con un salto de línea dentro de la celda o con `;`. Ejemplo
+ilustrativo, que debe reemplazarse por los aromas reales de cada producto:
+
+```text
+Lavanda|#B7A0D4|SI|1|SI|lavanda
+Vainilla|#E8D5A8|SI|2|NO|vainilla
+```
+
+- `Nombre`: texto que verá el cliente; se puede editar.
+- `#HEXCOLOR`: color hexadecimal de seis dígitos. Vacío o inválido usa un círculo neutro.
+- `activo`: `SI` para mostrarlo, `NO` para deshabilitarlo. Vacío equivale a `SI`.
+- `orden`: número para ordenar las opciones de menor a mayor. Vacío conserva el orden de la celda.
+- `predeterminado`: `SI` para la opción inicial. Si no hay ninguno, se elige el primero activo.
+- `id`: identificador estable, único dentro del producto. Se recomienda completarlo y no
+  cambiarlo al renombrar un aroma para conservar su relación con los pedidos guardados.
+  Si se omite, se obtiene del nombre; cambiar ese nombre retira la variante anterior.
+
+Para agregar un aroma, agregar una línea. Para editarlo, cambiar nombre, color u orden.
+Para retirarlo, borrar su línea o usar `NO` en activo. No hay límite fijo de opciones.
+Si se deshabilitan todos, se oculta el selector. Las variantes retiradas también se
+quitan del carrito guardado cuando se actualiza el catálogo, sin sustituirlas por otro aroma.
+
+También se acepta un array JSON en esa celda con las claves `nombre`, `color`, `activo`,
+`orden`, `predeterminado` e `id`. No mezclar ambos formatos en la misma celda.
+
+**Activación de este cambio:** copiar el archivo actualizado
+`google-apps-script/catalogo-productos.gs` al proyecto de Apps Script y actualizar
+la implementación de la Web App con una versión nueva, conservando la misma URL.
+El `.gs` ahora envía el campo `aromas` junto con `aroma` para mantener compatibilidad.
+No es necesario volver a publicar el script cada vez que se editan los aromas de la planilla.
+Esas ediciones pueden tardar hasta 5 minutos por la caché existente.
+
+## Categoría Souvenir
+
+La categoría **Souvenir** aparece en el catálogo aunque todavía no tenga productos.
+Para agregar productos, escribir `Souvenir` en la columna `categoria` y completar
+los demás datos de la fila. No hace falta modificar ni volver a publicar el `.gs`.
+
+La categoría Velas Clásicas y sus productos se retiraron de la web. En la planilla,
+eliminar esas filas o poner `NO` en `activo` para mantener el catálogo actualizado.
+Las actualizaciones de la planilla pueden demorar hasta 5 minutos por la caché del script.
 
 ## Imágenes de productos
 

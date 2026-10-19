@@ -7,7 +7,7 @@
   <title>Calefica | Velas de soja artesanales</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Quicksand:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
         <div class="brand-logo">
           <img class="brand-logo__icon" src="assets/img/calefica_logo.png" alt="">
           <div class="brand-logo__text">
-            <p class="brand-logo__name">Calefica</p>
+            <p class="brand-logo__name">Calef<span class="brand-logo__candle" role="img" aria-label="i"></span>ca</p>
             <div class="brand-logo__divider"><span></span><i></i><span></span></div>
             <p class="brand-logo__subtitle">VELAS DE SOJA</p>
             <p class="brand-logo__tagline">Naturalmente simple</p>
@@ -125,7 +125,7 @@
           <div class="carousel-head">
             <div>
               <span class="catalog-count" id="catalog-count">0 productos</span>
-              <h3 id="catalog-title">Velas clasicas</h3>
+              <h3 id="catalog-title">Todos</h3>
             </div>
             <div class="carousel-controls">
               <button class="icon-btn" id="prev-product" type="button" aria-label="Producto anterior">‹</button>
@@ -206,8 +206,11 @@
       <div class="product-modal__content">
         <h3 id="modal-product-title"></h3>
         <p class="product-modal__description" id="modal-product-description"></p>
+        <fieldset class="aroma-selector" id="modal-product-aromas" hidden>
+          <legend>Aroma</legend>
+          <div class="aroma-selector__options" id="modal-aroma-options"></div>
+        </fieldset>
         <div class="product-modal__meta">
-          <span>Aroma: <strong id="modal-product-aroma"></strong></span>
           <span class="price" id="modal-product-price"></span>
         </div>
         <div class="product-modal__quantity">
@@ -233,7 +236,7 @@
           <div class="brand-logo brand-logo--footer">
             <img class="brand-logo__icon" src="assets/img/calefica_logo.png" alt="">
             <div class="brand-logo__text">
-              <p class="brand-logo__name">Calefica</p>
+              <p class="brand-logo__name">Calef<span class="brand-logo__candle" role="img" aria-label="i"></span>ca</p>
               <div class="brand-logo__divider"><span></span><i></i><span></span></div>
               <p class="brand-logo__subtitle">VELAS DE SOJA</p>
               <p class="brand-logo__tagline">Naturalmente simple</p>
@@ -262,6 +265,7 @@
     </div>
   </footer>
 
+  <script src="js/aromas.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
