@@ -1973,6 +1973,12 @@ body.dark .footer a:hover {
   }
 }
 
+@media (max-width: 759px) {
+  .story-visual {
+    aspect-ratio: 5 / 8;
+  }
+}
+
 @media (max-width: 760px) {
   .hero-actions,
   .contact-actions {
