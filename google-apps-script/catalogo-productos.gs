@@ -29,7 +29,7 @@ const AROMAS_SHEET_NAME = "aromas";
 // CACHE_SECONDS define durante cuanto tiempo Apps Script reutiliza el JSON generado.
 // Reducirlo si el cliente necesita ver cambios casi inmediatos.
 const CACHE_SECONDS = 300;
-const CACHE_KEY = "calefica_catalogo_productos_v3_selector_aromas";
+const CACHE_KEY = "calefica_catalogo_productos_v4_opciones_aromas";
 
 // Si Apps Script no abre desde la planilla, crear el script desde script.google.com
 // y pegar aca el ID de la Google Sheet. Si se deja vacio, usa la planilla activa.
@@ -69,15 +69,21 @@ function buildProductsResponse() {
   const sheet = spreadsheet.getSheetByName(SHEET_NAME);
   if (!sheet) throw new Error(`No existe la hoja "${SHEET_NAME}".`);
 
-  const values = sheet.getDataRange().getValues();
+  const dataRange = sheet.getDataRange();
+  const values = dataRange.getValues();
   if (values.length < 2) {
     return { ok: true, total: 0, productos: [] };
   }
 
   const headers = values[0].map(normalizeHeader);
+  const aromaColumn = headers.includes("aroma") ? headers.indexOf("aroma") : headers.indexOf("aromas");
+  const validations = aromaColumn >= 0 ? dataRange.getDataValidations() : [];
   const rawProducts = values
     .slice(1)
-    .map(row => rowToRawProduct(row, headers))
+    .map((row, index) => ({
+      ...rowToRawProduct(row, headers),
+      _aromaOptions: readAromaDropdownOptions(validations[index + 1]?.[aromaColumn]),
+    }))
     .filter(producto => normalizeYesNo(producto.activo) === "SI");
 
   // Se consulta Drive cuando al menos un producto tiene nombreImagen definido.
@@ -140,7 +146,11 @@ function readAromaCatalog(spreadsheet) {
     names.add(nameKey);
     ids.add(idKey);
   });
-  return normalizeAromas(rows);
+  // Conserva también los inactivos para distinguir una baja de un aroma sin metadatos.
+  return normalizeAromas(rows.map(row => ({ ...row, activo: "SI" }))).map(aroma => {
+    const row = rows.find(row => aromaLookupKey(row.nombre) === aromaLookupKey(aroma.nombre));
+    return { ...aroma, activo: row.activo == null || row.activo === "" || normalizeYesNo(row.activo) === "SI" };
+  });
 }
 
 function aromaLookupKey(value) {
@@ -154,13 +164,34 @@ function resolveProductAromas(value, aromaCatalog) {
     return normalizeAromas(value);
   }
   const selected = new Set(text.split(/[,;\r\n]+/).map(aromaLookupKey).filter(Boolean));
-  return aromaCatalog.filter(aroma => selected.has(aromaLookupKey(aroma.nombre)) || selected.has(aromaLookupKey(aroma.id)));
+  return aromaCatalog.filter(aroma => aroma.activo !== false && (selected.has(aromaLookupKey(aroma.nombre)) || selected.has(aromaLookupKey(aroma.id))));
+}
+
+function readAromaDropdownOptions(rule) {
+  if (!rule) return null;
+  const type = String(rule.getCriteriaType());
+  const criteria = rule.getCriteriaValues();
+  let options;
+  if (type === "VALUE_IN_LIST") {
+    options = criteria[0];
+  } else if (type === "VALUE_IN_RANGE") {
+    options = criteria[0].getValues().flat();
+  } else {
+    return null;
+  }
+  return options.map(value => String(value == null ? "" : value).trim()).filter(Boolean);
 }
 
 function normalizeProduct(item, imageMap, aromaCatalog = null) {
   const nombreImagen = String(item.nombreImagen || "").trim();
   const imagenUrl = nombreImagen && imageMap[nombreImagen] ? imageMap[nombreImagen] : "";
-  const aromas = resolveProductAromas(item.aroma, aromaCatalog);
+  // Con desplegable, se ofrecen todas sus opciones, sin depender de la celda seleccionada.
+  const aromas = Array.isArray(item._aromaOptions)
+    ? normalizeAromas(item._aromaOptions).map(option =>
+      aromaCatalog?.find(aroma => aromaLookupKey(option.nombre) === aromaLookupKey(aroma.nombre)
+        || aromaLookupKey(option.nombre) === aromaLookupKey(aroma.id)) || option
+    ).filter(aroma => aroma.activo !== false).sort((a, b) => a.orden - b.orden)
+    : resolveProductAromas(item.aroma ?? item.aromas, aromaCatalog);
 
   return {
     id: String(item.id || "").trim(),

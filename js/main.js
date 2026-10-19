@@ -237,10 +237,10 @@ function buildCategories(productList) {
   const uniqueCategories = [...new Set(productList.map(product => product.categoria).filter(Boolean))];
   return [
     { id: "todos", label: "Todos" },
-    { id: "souvenir", label: "Souvenir" },
     ...uniqueCategories
       .filter(category => slugify(category) !== "souvenir")
       .map(category => ({ id: slugify(category), label: category })),
+    { id: "souvenir", label: "Souvenir" },
   ];
 }
 

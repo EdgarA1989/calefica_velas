@@ -85,10 +85,13 @@ Editar el número en `orden`. El menor número aparece primero.
 
 ## Aromas seleccionables por producto
 
-Para administrar los aromas con un **desplegable múltiple**, usar la hoja maestra
-`aromas` siguiendo la [guía del selector en la planilla](selector-aromas-planilla.md).
-El script actualizado admite ambas alternativas. La explicación que sigue corresponde
-al formato directo anterior, que continúa siendo compatible.
+El detalle web ofrece **todas las opciones del desplegable** de la celda `aroma` de
+cada producto. El cliente elige el aroma en la web y el carrito guarda su selección.
+No es necesario marcar todos los aromas ni activar selección múltiple en la planilla.
+Para administrarlos, seguir la [guía del selector en la planilla](selector-aromas-planilla.md).
+La hoja maestra `aromas` es opcional para definir colores y estado activo.
+La explicación que sigue corresponde al formato directo anterior, compatible con
+las celdas que no tienen una regla de desplegable.
 
 Se reutiliza la columna **`aroma`** de la hoja `productos`; no hay que crear columnas
 ni hojas adicionales. Cada fila contiene únicamente los aromas asociados a ese producto.

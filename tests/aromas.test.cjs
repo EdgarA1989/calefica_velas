@@ -113,3 +113,31 @@ test('sin aromas, pedidos anteriores y sincronización de variantes editadas o r
   assert.equal(run('getCart().length'), 1);
   assert.equal(run('getCart()[0].aroma'), 'Lavanda');
 });
+
+test('detalle ofrece todas las opciones del desplegable, aunque la celda tenga una sola o esté vacía', () => {
+  const backend = vm.createContext({});
+  vm.runInContext(read('google-apps-script/catalogo-productos.gs'), backend);
+  const run = code => vm.runInContext(code, backend);
+  run(`
+    const listRule = {getCriteriaType:()=> 'VALUE_IN_LIST', getCriteriaValues:()=> [['Lavanda','Coco','Vainilla','Coco-Vainilla','Frutos Rojos','Frutilla']]};
+    const rangeRule = {getCriteriaType:()=> 'VALUE_IN_RANGE', getCriteriaValues:()=> [{getValues:()=> [['Lavanda'],['Coco'],['']]}]};
+    const grid = [['id','activo','aromas','nombre','stock'], ['vela','SI','Lavanda','Vela','SI'], ['otra','SI','','Otra','SI']];
+    const validations = [[null,null,null,null], [null,null,listRule,null], [null,null,rangeRule,null]];
+    getSpreadsheet = () => ({getSheetByName: name => name === 'productos' ? {getDataRange:()=> ({getValues:()=>grid,getDataValidations:()=>validations})} : null});
+    const payload = buildProductsResponse();
+  `);
+  assert.equal(run('payload.productos[0].aromas.length'), 6);
+  assert.equal(run('payload.productos[1].aromas.length'), 2);
+  assert.equal(run('payload.productos[0].aromas[5].nombre'), 'Frutilla');
+  assert.equal(run('readAromaDropdownOptions(null)'), null);
+  assert.equal(run('readAromaDropdownOptions({getCriteriaType:()=>"CHECKBOX",getCriteriaValues:()=>[]})'), null);
+  assert.equal(run('normalizeProduct({aroma:"Lavanda",_aromaOptions:[]},{}).aromas.length'), 0);
+  run('const master = [{nombre:"Lavanda",color:"#B7A0D4",id:"lavanda",activo:true,orden:0},{nombre:"Coco",id:"coco",activo:false,orden:1}];');
+  assert.equal(run('normalizeProduct({aroma:"Coco",_aromaOptions:readAromaDropdownOptions(listRule)}, {}, master).aromas.length'), 5);
+  assert.equal(run('normalizeProduct({_aromaOptions:["Lavanda"]}, {}, master).aromas[0].color'), '#B7A0D4');
+  const { run: frontend, context } = app();
+  context.payload = JSON.parse(run('JSON.stringify(payload)'));
+  frontend('const product = normalizeProduct(payload.productos[0]); addToCart(product, 2, product.aromas[2]);');
+  assert.equal(frontend('getCart()[0].aroma'), 'Vainilla');
+  assert.equal(frontend('getCart()[0].cantidad'), 2);
+});
