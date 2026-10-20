@@ -1603,8 +1603,30 @@ body.dark .product-modal__close {
   flex-direction: column;
   gap: .9rem;
   min-width: 0;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--wood-deep) var(--bg-soft);
   padding: clamp(1.2rem, 4vw, 2.2rem);
+}
+
+.product-modal__content > * {
+  flex-shrink: 0;
+}
+
+@media (min-width: 761px) {
+  .product-modal__dialog {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .product-modal__image {
+    min-height: min(520px, calc(88dvh - 2px));
+  }
+
+  .product-modal__content {
+    max-height: calc(min(88dvh, 760px) - 2px);
+  }
 }
 
 .product-modal__content h3 {

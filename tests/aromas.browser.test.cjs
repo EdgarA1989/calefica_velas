@@ -107,6 +107,24 @@ test('modal real: radios, variantes, temas, escritorio y mobile', { skip: !fs.ex
     }
   }
   assert.equal(await evaluate('getComputedStyle(document.getElementById("modal-aroma-options")).gridTemplateColumns.split(" ").length'), 1);
+  await evaluate(`
+    const longProduct = products.find(p => p.id === 'multi');
+    longProduct.descripcion = 'Descripción extensa para comprobar el desplazamiento del detalle. '.repeat(12);
+    longProduct.aromas = normalizeAromas(Array.from({length:16}, (_, i) => ({nombre:'Aroma de prueba ' + (i + 1),color:'#B7A0D4'})));
+    openProductModal(longProduct);
+  `);
+  for (const height of [900, 768, 600]) {
+    await page('Emulation.setDeviceMetricsOverride', { width: 1366, height, deviceScaleFactor: 1, mobile: false });
+    await pause(100);
+    assert.equal(await evaluate('document.querySelector(".product-modal__content").scrollHeight > document.querySelector(".product-modal__content").clientHeight'), true);
+    assert.equal(await evaluate('document.querySelector(".product-modal__dialog").getBoundingClientRect().bottom <= innerHeight'), true);
+    const point = await evaluate('(() => { const r = document.querySelector(".product-modal__content").getBoundingClientRect(); document.querySelector(".product-modal__content").scrollTop=0; return {x:r.x+80,y:r.y+100}; })()');
+    await page('Input.dispatchMouseEvent', {type:'mouseWheel', x:point.x, y:point.y, deltaX:0, deltaY:10000});
+    await pause(250);
+    assert.equal(await evaluate('document.querySelector(".product-modal__content").scrollTop > 0'), true);
+    assert.equal(await evaluate('document.getElementById("modal-product-buy").getBoundingClientRect().bottom <= document.querySelector(".product-modal__content").getBoundingClientRect().bottom'), true);
+    assert.equal(await evaluate('document.querySelector(".product-modal__image").getBoundingClientRect().x < document.querySelector(".product-modal__content").getBoundingClientRect().x'), true);
+  }
   console.log('Capturas del modal:', profile);
   await send('Browser.close');
 });
