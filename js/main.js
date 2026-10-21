@@ -478,7 +478,7 @@ function initProductModal() {
 
   document.getElementById("modal-product-consult")?.addEventListener("click", () => {
     const product = getActiveModalProduct();
-    if (!product || product.stock === "NO") return;
+    if (!product) return;
 
     const quantity = quantities.get(product.id) || 1;
     window.open(getProductWhatsappUrl(product, quantity, getSelectedModalAroma()), "_blank", "noopener,noreferrer");
@@ -528,7 +528,7 @@ function openProductModal(product) {
 
   const consultButton = document.getElementById("modal-product-consult");
   if (consultButton) {
-    consultButton.disabled = isOutOfStock;
+    consultButton.disabled = false;
   }
 
   const qtyWrap = document.querySelector(".product-modal__quantity");
